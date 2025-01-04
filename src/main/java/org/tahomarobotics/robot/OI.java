@@ -9,8 +9,6 @@ import org.tahomarobotics.robot.chassis.commands.TeleopDriveCommand;
 import org.tahomarobotics.robot.elevator.Elevator;
 import org.tahomarobotics.robot.elevator.commands.ElevatorDefaultCommand;
 import org.tahomarobotics.robot.elevator.commands.ElevatorMoveCommand;
-import org.tahomarobotics.robot.mechanism.Mechanism;
-import org.tahomarobotics.robot.mechanism.commands.DefaultMechanismCommand;
 import org.tahomarobotics.robot.util.SubsystemIF;
 
 public class OI extends SubsystemIF {
@@ -23,7 +21,6 @@ public class OI extends SubsystemIF {
 
     private final Elevator elevator = Elevator.getInstance();
     private final Chassis chassis = Chassis.getInstance();
-    private final Mechanism mechanism = Mechanism.getInstance();
 
     private final CommandXboxController driveController = new CommandXboxController(0);
     private final CommandXboxController manipController = new CommandXboxController(1);
@@ -57,10 +54,6 @@ public class OI extends SubsystemIF {
                 () -> -desensitizePowerBased(driveController.getRightX(), ROTATIONAL_SENSITIVITY)
         ));
         elevator.setDefaultCommand(new ElevatorDefaultCommand(() -> MathUtil.applyDeadband(manipController.getLeftY(), DEADBAND)));
-        mechanism.setDefaultCommand(new DefaultMechanismCommand(
-                () -> -MathUtil.applyDeadband(manipController.getRightY(), DEADBAND),
-                () -> MathUtil.applyDeadband(manipController.getLeftTriggerAxis() - manipController.getRightTriggerAxis(), DEADBAND)
-        ));
     }
 
     // Helper Methods
