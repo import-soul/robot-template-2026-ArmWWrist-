@@ -42,6 +42,7 @@ public class Chassis extends SubsystemIF {
     private final Pigeon2 pigeon = new Pigeon2(RobotMap.PIGEON, RobotConfiguration.CANBUS_NAME);
     private final StatusSignal<Angle> yaw = pigeon.getYaw();
     private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
+
     public record ValidYaw(Rotation2d yaw, boolean valid) {}
 
     private ChassisSpeeds targetSpeeds = new ChassisSpeeds();
@@ -72,8 +73,8 @@ public class Chassis extends SubsystemIF {
 
         kinematics = new SwerveDriveKinematics(
                 modules.stream()
-                        .map(SwerveModule::getTranslationOffset)
-                        .toArray(Translation2d[]::new)
+                       .map(SwerveModule::getTranslationOffset)
+                       .toArray(Translation2d[]::new)
         );
 
         lastModulePosition = getSwerveModulePositions();
@@ -147,8 +148,8 @@ public class Chassis extends SubsystemIF {
     public void finalizeCalibration() {
         swerveCalibration.set(
                 modules.stream()
-                        .map(SwerveModule::finalizeCalibration)
-                        .toArray(Double[]::new)
+                       .map(SwerveModule::finalizeCalibration)
+                       .toArray(Double[]::new)
         );
     }
 
@@ -219,7 +220,7 @@ public class Chassis extends SubsystemIF {
             // If pigeon yaw is valid, accept it as the real value
             if (validYaw.valid()) {
                 heading = validYaw.yaw();
-            // Else, calculate yaw from odometry by getting position deltas
+                // Else, calculate yaw from odometry by getting position deltas
             } else {
                 SwerveModulePosition[] deltas = calculateModuleDeltas(lastModulePosition, positions);
                 Twist2d twist = kinematics.toTwist2d(deltas);
@@ -248,15 +249,5 @@ public class Chassis extends SubsystemIF {
             swerveModuleStates = accelerationLimiter.calculate(swerveModuleStates);
             setSwerveStates(swerveModuleStates);
         }
-    }
-
-    @Override
-    public double getEnergyUsed() {
-        return 0;
-    }
-
-    @Override
-    public double getTotalCurrent() {
-        return 0;
     }
 }

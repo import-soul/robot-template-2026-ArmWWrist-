@@ -35,9 +35,9 @@ public class SysIdTest extends SubsystemIF {
                 new SysIdRoutine.Mechanism(
                         (Voltage volts) -> motor.setControl(control.withOutput(volts.in(Volts))),
                         log -> log.motor("motor")
-                                .voltage(motor.getMotorVoltage().getValue())
-                                .linearPosition(Meters.of(motor.getPosition().getValueAsDouble()))
-                                .linearVelocity(MetersPerSecond.of(motor.getVelocity().getValueAsDouble())),
+                                  .voltage(motor.getMotorVoltage().getValue())
+                                  .linearPosition(Meters.of(motor.getPosition().getValueAsDouble()))
+                                  .linearVelocity(MetersPerSecond.of(motor.getVelocity().getValueAsDouble())),
                         subsystem
                 )
         );

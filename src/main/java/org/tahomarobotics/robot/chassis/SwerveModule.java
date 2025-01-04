@@ -52,7 +52,7 @@ public class SwerveModule {
 
     private final RobustConfigurator configurator;
 
-    public SwerveModule(RobotMap.SwerveModuleDescriptor descriptor, double angularOffset){
+    public SwerveModule(RobotMap.SwerveModuleDescriptor descriptor, double angularOffset) {
         configurator = new RobustConfigurator(logger);
 
         name = descriptor.moduleName();

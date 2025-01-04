@@ -42,7 +42,9 @@ public class ElevatorConstants {
                     .withMotionMagicCruiseVelocity(ELEVATOR_MAX_VELOCITY)
                     .withMotionMagicAcceleration(ELEVATOR_MAX_ACCELERATION)
                     .withMotionMagicJerk(0.0))
-            .withClosedLoopGeneral(new ClosedLoopGeneralConfigs(){{ContinuousWrap = false;}})
+            .withClosedLoopGeneral(new ClosedLoopGeneralConfigs() {{
+                ContinuousWrap = false;
+            }})
             .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(1 / SENSOR_COEFFICIENT))
             .withAudio(new AudioConfigs().withBeepOnBoot(true).withBeepOnConfig(true));
 }

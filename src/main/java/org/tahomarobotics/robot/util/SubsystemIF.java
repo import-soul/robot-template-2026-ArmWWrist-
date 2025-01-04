@@ -11,9 +11,14 @@ public abstract class SubsystemIF extends SubsystemBase {
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
-    public SubsystemIF initialize() { return this; }
+    public SubsystemIF initialize() {
+        return this;
+    }
+
     public void onDisabledInit() {}
+
     public void onAutonomousInit() {}
+
     public void onTeleopInit() {}
 
     public double getEnergyUsed() {

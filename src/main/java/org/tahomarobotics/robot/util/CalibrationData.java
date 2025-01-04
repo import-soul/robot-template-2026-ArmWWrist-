@@ -37,7 +37,8 @@ public class CalibrationData<T extends Serializable> {
 
     /**
      * Take care of reading and writing of calibration data to a file on the robot.
-     * @param filename - simple filename
+     *
+     * @param filename    - simple filename
      * @param defaultData - data is initialized to these values when no file is found
      */
     public CalibrationData(String filename, T defaultData) {
@@ -49,7 +50,7 @@ public class CalibrationData<T extends Serializable> {
     @SuppressWarnings("unchecked")
     private void readCalibrationFile() {
         try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file))) {
-            data = castData((T)inputStream.readObject());
+            data = castData((T) inputStream.readObject());
             logger.info("Successfully read calibration data <" + file.getAbsolutePath() + "> -> " + formatData());
         } catch (Exception e) {
             logger.error("Failed to read calibration data <" + file.getAbsolutePath() + ">");
@@ -81,7 +82,7 @@ public class CalibrationData<T extends Serializable> {
     }
 
     private T[] castData(T data) {
-        return (T[]) new Serializable[]{ data };
+        return (T[]) new Serializable[]{data};
     }
 
     private String formatData() {
