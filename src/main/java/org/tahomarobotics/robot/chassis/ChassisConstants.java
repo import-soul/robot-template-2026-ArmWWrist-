@@ -84,56 +84,56 @@ public class ChassisConstants {
     // Configuration
 
     public static final TalonFXConfiguration driveMotorConfiguration = new TalonFXConfiguration()
-            .withSlot0(new Slot0Configs()
-                    .withKP(0.15)
-                    .withKV(kV_DRIVE))
-            .withMotorOutput(new MotorOutputConfigs()
-                    .withNeutralMode(NeutralModeValue.Brake)
-                    .withInverted(InvertedValue.Clockwise_Positive))
-            .withMotionMagic(new MotionMagicConfigs()
-                    .withMotionMagicAcceleration(120)
-                    .withMotionMagicJerk(360)
-            )
-            .withCurrentLimits(new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(DRIVE_STATOR_CURRENT_LIMIT)
-                    .withSupplyCurrentLimit(DRIVE_SUPPLY_CURRENT_LIMIT))
-            .withAudio(new AudioConfigs()
-                    .withBeepOnBoot(true)
-                    .withBeepOnConfig(true));
+        .withSlot0(new Slot0Configs()
+            .withKP(0.15)
+            .withKV(kV_DRIVE))
+        .withMotorOutput(new MotorOutputConfigs()
+            .withNeutralMode(NeutralModeValue.Brake)
+            .withInverted(InvertedValue.Clockwise_Positive))
+        .withMotionMagic(new MotionMagicConfigs()
+            .withMotionMagicAcceleration(120)
+            .withMotionMagicJerk(360)
+        )
+        .withCurrentLimits(new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(DRIVE_STATOR_CURRENT_LIMIT)
+            .withSupplyCurrentLimit(DRIVE_SUPPLY_CURRENT_LIMIT))
+        .withAudio(new AudioConfigs()
+            .withBeepOnBoot(true)
+            .withBeepOnConfig(true));
 
     public static final TalonFXConfiguration steerMotorConfiguration = new TalonFXConfiguration()
-            .withSlot0(new Slot0Configs()
-                    .withKP(8.0)
-                    .withKI(0.01)
-                    .withKD(0.16)
-            )
-            .withMotorOutput(new MotorOutputConfigs()
-                    .withNeutralMode(NeutralModeValue.Brake)
-                    .withInverted(InvertedValue.Clockwise_Positive))
-            .withMotionMagic(new MotionMagicConfigs()
-                    .withMotionMagicAcceleration(25)
-                    .withMotionMagicJerk(100)
-            )
-            .withClosedLoopGeneral(new ClosedLoopGeneralConfigs() {{
-                ContinuousWrap = true;
-            }})
-            .withFeedback(new FeedbackConfigs() {{
-                              if (RobotConfiguration.CANIVORE_PHOENIX_PRO) {
-                                  FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-                                  RotorToSensorRatio = 1 / STEER_REDUCTION;
-                              } else {
-                                  FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-                              }
-                          }}
-            )
-            .withCurrentLimits(new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(STEER_STATOR_CURRENT_LIMIT)
-                    .withSupplyCurrentLimit(STEER_SUPPLY_CURRENT_LIMIT))
-            .withAudio(new AudioConfigs()
-                    .withBeepOnBoot(true)
-                    .withBeepOnConfig(true));
+        .withSlot0(new Slot0Configs()
+            .withKP(8.0)
+            .withKI(0.01)
+            .withKD(0.16)
+        )
+        .withMotorOutput(new MotorOutputConfigs()
+            .withNeutralMode(NeutralModeValue.Brake)
+            .withInverted(InvertedValue.Clockwise_Positive))
+        .withMotionMagic(new MotionMagicConfigs()
+            .withMotionMagicAcceleration(25)
+            .withMotionMagicJerk(100)
+        )
+        .withClosedLoopGeneral(new ClosedLoopGeneralConfigs() {{
+            ContinuousWrap = true;
+        }})
+        .withFeedback(new FeedbackConfigs() {{
+                          if (RobotConfiguration.CANIVORE_PHOENIX_PRO) {
+                              FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+                              RotorToSensorRatio = 1 / STEER_REDUCTION;
+                          } else {
+                              FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+                          }
+                      }}
+        )
+        .withCurrentLimits(new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(STEER_STATOR_CURRENT_LIMIT)
+            .withSupplyCurrentLimit(STEER_SUPPLY_CURRENT_LIMIT))
+        .withAudio(new AudioConfigs()
+            .withBeepOnBoot(true)
+            .withBeepOnConfig(true));
 
     public static final MagnetSensorConfigs encoderConfiguration = new MagnetSensorConfigs()
-            .withAbsoluteSensorDiscontinuityPoint(1)
-            .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
+        .withAbsoluteSensorDiscontinuityPoint(1)
+        .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
 }

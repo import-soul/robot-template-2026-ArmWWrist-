@@ -54,7 +54,7 @@ public class OI extends SubsystemIF {
 
     public void setDefaultCommands() {
         chassis.setDefaultCommand(new TeleopDriveCommand(
-                this::getDriveLeftX, this::getDriveLeftY, this::getDriveRightX
+            this::getDriveLeftX, this::getDriveLeftY, this::getDriveRightX
         ));
         elevator.setDefaultCommand(new ElevatorDefaultCommand(() -> MathUtil.applyDeadband(manipController.getLeftY(), DEADBAND)));
     }

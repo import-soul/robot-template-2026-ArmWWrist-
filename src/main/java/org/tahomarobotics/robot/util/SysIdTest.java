@@ -19,27 +19,27 @@ public class SysIdTest extends SubsystemIF {
         this.motor = motor;
 
         BaseStatusSignal.setUpdateFrequencyForAll(250,
-                motor.getPosition(),
-                motor.getVelocity(),
-                motor.getMotorVoltage()
+            motor.getPosition(),
+            motor.getVelocity(),
+            motor.getMotorVoltage()
         );
 
         motor.optimizeBusUtilization();
 
         sysIdRoutine = new SysIdRoutine(
-                new SysIdRoutine.Config(
-                        Volts.of(0.5).per(Second),
-                        Volts.of(2),
-                        null,
-                        null),
-                new SysIdRoutine.Mechanism(
-                        (Voltage volts) -> motor.setControl(control.withOutput(volts.in(Volts))),
-                        log -> log.motor("motor")
-                                  .voltage(motor.getMotorVoltage().getValue())
-                                  .linearPosition(Meters.of(motor.getPosition().getValueAsDouble()))
-                                  .linearVelocity(MetersPerSecond.of(motor.getVelocity().getValueAsDouble())),
-                        subsystem
-                )
+            new SysIdRoutine.Config(
+                Volts.of(0.5).per(Second),
+                Volts.of(2),
+                null,
+                null),
+            new SysIdRoutine.Mechanism(
+                (Voltage volts) -> motor.setControl(control.withOutput(volts.in(Volts))),
+                log -> log.motor("motor")
+                          .voltage(motor.getMotorVoltage().getValue())
+                          .linearPosition(Meters.of(motor.getPosition().getValueAsDouble()))
+                          .linearVelocity(MetersPerSecond.of(motor.getVelocity().getValueAsDouble())),
+                subsystem
+            )
         );
     }
 

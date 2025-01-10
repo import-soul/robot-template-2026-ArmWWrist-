@@ -26,25 +26,25 @@ public class ElevatorConstants {
     public static final double ZEROING_VOLTAGE = -1;
 
     static final TalonFXConfiguration elevatorConfig = new TalonFXConfiguration()
-            .withSlot0(new Slot0Configs()
-                    .withGravityType(GravityTypeValue.Elevator_Static)
-                    .withKP(75.0)
-                    .withKI(1.0)
-                    .withKD(0.0)
-                    .withKS(0.0)
-                    .withKV(0.0)
-                    .withKA(0.0)
-                    .withKG(0.0)
-            ).withMotorOutput(new MotorOutputConfigs()
-                    .withNeutralMode(NeutralModeValue.Coast)
-                    .withInverted(InvertedValue.CounterClockwise_Positive))
-            .withMotionMagic(new MotionMagicConfigs()
-                    .withMotionMagicCruiseVelocity(ELEVATOR_MAX_VELOCITY)
-                    .withMotionMagicAcceleration(ELEVATOR_MAX_ACCELERATION)
-                    .withMotionMagicJerk(0.0))
-            .withClosedLoopGeneral(new ClosedLoopGeneralConfigs() {{
-                ContinuousWrap = false;
-            }})
-            .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(1 / SENSOR_COEFFICIENT))
-            .withAudio(new AudioConfigs().withBeepOnBoot(true).withBeepOnConfig(true));
+        .withSlot0(new Slot0Configs()
+            .withGravityType(GravityTypeValue.Elevator_Static)
+            .withKP(75.0)
+            .withKI(1.0)
+            .withKD(0.0)
+            .withKS(0.0)
+            .withKV(0.0)
+            .withKA(0.0)
+            .withKG(0.0)
+        ).withMotorOutput(new MotorOutputConfigs()
+            .withNeutralMode(NeutralModeValue.Coast)
+            .withInverted(InvertedValue.CounterClockwise_Positive))
+        .withMotionMagic(new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(ELEVATOR_MAX_VELOCITY)
+            .withMotionMagicAcceleration(ELEVATOR_MAX_ACCELERATION)
+            .withMotionMagicJerk(0.0))
+        .withClosedLoopGeneral(new ClosedLoopGeneralConfigs() {{
+            ContinuousWrap = false;
+        }})
+        .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(1 / SENSOR_COEFFICIENT))
+        .withAudio(new AudioConfigs().withBeepOnBoot(true).withBeepOnConfig(true));
 }

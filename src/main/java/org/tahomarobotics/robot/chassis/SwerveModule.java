@@ -103,12 +103,12 @@ public class SwerveModule {
         steerCurrent = steerMotor.getSupplyCurrent();
 
         BaseStatusSignal.setUpdateFrequencyForAll(RobotConfiguration.ODOMETRY_UPDATE_FREQUENCY,
-                drivePosition,
-                driveVelocity,
-                driveAcceleration,
-                steerVelocity,
-                driveCurrent,
-                steerCurrent
+            drivePosition,
+            driveVelocity,
+            driveAcceleration,
+            steerVelocity,
+            driveCurrent,
+            steerCurrent
         );
         ParentDevice.optimizeBusUtilizationForAll(driveMotor, steerMotor, steerEncoder);
     }
@@ -210,20 +210,20 @@ public class SwerveModule {
         steerEncoderSimState.Orientation = ChassisReference.CounterClockwise_Positive;
 
         driveMotorSimModel = new DCMotorSim(
-                LinearSystemId.createDCMotorSystem(
-                        DCMotor.getKrakenX60Foc(1),
-                        DRIVE_MOTOR_MOI * MOI_SCALING_FACTOR,
-                        1 / DRIVE_REDUCTION
-                ),
-                DCMotor.getKrakenX60Foc(1)
+            LinearSystemId.createDCMotorSystem(
+                DCMotor.getKrakenX60Foc(1),
+                DRIVE_MOTOR_MOI * MOI_SCALING_FACTOR,
+                1 / DRIVE_REDUCTION
+            ),
+            DCMotor.getKrakenX60Foc(1)
         );
         steerMotorSimModel = new DCMotorSim(
-                LinearSystemId.createDCMotorSystem(
-                        DCMotor.getKrakenX60Foc(1),
-                        WHEEL_MOI * MOI_SCALING_FACTOR,
-                        1 / STEER_REDUCTION
-                ),
-                DCMotor.getKrakenX60Foc(1)
+            LinearSystemId.createDCMotorSystem(
+                DCMotor.getKrakenX60Foc(1),
+                WHEEL_MOI * MOI_SCALING_FACTOR,
+                1 / STEER_REDUCTION
+            ),
+            DCMotor.getKrakenX60Foc(1)
         );
 
         lastUpdateTime = Timer.getFPGATimestamp();
@@ -271,13 +271,13 @@ public class SwerveModule {
 
     public List<BaseStatusSignal> getStatusSignals() {
         return List.of(
-                drivePosition,
-                driveAcceleration,
-                driveVelocity,
-                steerPosition,
-                steerVelocity,
-                driveCurrent,
-                steerCurrent
+            drivePosition,
+            driveAcceleration,
+            driveVelocity,
+            steerPosition,
+            steerVelocity,
+            driveCurrent,
+            steerCurrent
         );
     }
 }

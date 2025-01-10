@@ -24,9 +24,9 @@ public class Robot extends TimedRobot {
 
     @NotLogged
     private final List<SubsystemIF> subsystems = List.of(
-            oi.initialize(),
-            chassis.initialize(),
-            elevator.initialize()
+        oi.initialize(),
+        chassis.initialize(),
+        elevator.initialize()
     );
 
     // Robot

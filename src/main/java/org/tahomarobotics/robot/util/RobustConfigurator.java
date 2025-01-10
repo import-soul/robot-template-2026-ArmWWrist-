@@ -48,9 +48,9 @@ public class RobustConfigurator {
 
     private void retryMotorConfigurator(Supplier<StatusCode> func) {
         retryConfigurator(logger, func,
-                "Successful motor configuration" + detail,
-                "Failed motor configuration" + detail,
-                "Retrying failed motor configuration" + detail
+            "Successful motor configuration" + detail,
+            "Failed motor configuration" + detail,
+            "Retrying failed motor configuration" + detail
         );
     }
 
