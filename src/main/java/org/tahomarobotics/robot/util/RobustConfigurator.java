@@ -3,7 +3,6 @@ package org.tahomarobotics.robot.util;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -37,9 +36,15 @@ public class RobustConfigurator {
                 Logger.info("Successfully configured {} in {} attempt{}!", specifier, i + 1, i == 0 ? "" : "s");
                 break;
             } else if (statusCode.isWarning()) {
-                Logger.warn("[{}/{}] Configuring {} returned warning status code: {}, retrying...", i + 1, specifier, statusCode);
+                Logger.warn(
+                    "[{}/{}] Configuring {} returned warning status code: {}, retrying...", i + 1, RETRIES, specifier,
+                    statusCode
+                );
             } else {
-                Logger.error("[{}/{}] Configuring {} returned error status code: {}, retrying...", i + 1, specifier, statusCode);
+                Logger.error(
+                    "[{}/{}] Configuring {} returned error status code: {}, retrying...", i + 1, RETRIES, specifier,
+                    statusCode
+                );
             }
         }
         return statusCode;
@@ -61,36 +66,6 @@ public class RobustConfigurator {
     }
 
     /**
-     * Attempts to configure a TalonFX with a follower.
-     *
-     * @param deviceName          Name of the device
-     * @param motor               The motor
-     * @param follower            The follower motor
-     * @param configuration       Configuration to apply
-     * @param isOppositeDirection Whether the follower should turn the opposite direction
-     *
-     * @return The resulting status code
-     */
-    public static StatusCode tryConfigureTalonFXWithFollower(String deviceName, TalonFX motor, TalonFX follower, TalonFXConfiguration configuration, boolean isOppositeDirection) {
-        follower.setControl(new Follower(motor.getDeviceID(), isOppositeDirection));
-        return tryConfigure("TalonFX '" + deviceName + "'", () -> motor.getConfigurator().apply(configuration));
-    }
-
-    /**
-     * Attempts to configure a TalonFX with a follower.
-     *
-     * @param deviceName    Name of the device
-     * @param motor         The motor
-     * @param follower      The follower motor
-     * @param configuration Configuration to apply
-     *
-     * @return The resulting status code
-     */
-    public static StatusCode tryConfigureTalonFXWithFollower(String deviceName, TalonFX motor, TalonFX follower, TalonFXConfiguration configuration) {
-        return tryConfigureTalonFXWithFollower(deviceName, motor, follower, configuration, false);
-    }
-
-    /**
      * Attempts to modify the configuration of a TalonFX.
      *
      * @param deviceName   Name of the device
@@ -99,7 +74,8 @@ public class RobustConfigurator {
      *
      * @return The resulting status code
      */
-    public static StatusCode tryModifyTalonFX(String deviceName, TalonFX motor, Consumer<TalonFXConfiguration> modification) {
+    public static StatusCode tryModifyTalonFX(
+        String deviceName, TalonFX motor, Consumer<TalonFXConfiguration> modification) {
         var config = new TalonFXConfiguration();
         motor.getConfigurator().refresh(config);
         modification.accept(config);
@@ -116,7 +92,8 @@ public class RobustConfigurator {
      *
      * @return The resulting status code
      */
-    public static StatusCode tryConfigureCANcoder(String deviceName, CANcoder encoder, CANcoderConfiguration configuration) {
+    public static StatusCode tryConfigureCANcoder(
+        String deviceName, CANcoder encoder, CANcoderConfiguration configuration) {
         return tryConfigure("CANcoder '" + deviceName + "'", () -> encoder.getConfigurator().apply(configuration));
     }
 
@@ -129,7 +106,8 @@ public class RobustConfigurator {
      *
      * @return The resulting status code
      */
-    public static StatusCode tryModifyCANcoder(String deviceName, CANcoder encoder, Consumer<CANcoderConfiguration> modification) {
+    public static StatusCode tryModifyCANcoder(
+        String deviceName, CANcoder encoder, Consumer<CANcoderConfiguration> modification) {
         var config = new CANcoderConfiguration();
         encoder.getConfigurator().refresh(config);
         modification.accept(config);

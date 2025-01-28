@@ -6,6 +6,7 @@ import edu.wpi.first.epilogue.NotLogged;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.tahomarobotics.robot.chassis.Chassis;
+import org.tahomarobotics.robot.elevator.Elevator;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.util.shims.FauxWatchdog;
 import org.tahomarobotics.robot.vision.Vision;
@@ -17,18 +18,21 @@ import java.util.List;
 public class Robot extends TimedRobot {
     // Subsystems
 
-    @Logged(name = "OI")
-    private final OI oi = OI.getInstance();
     @Logged(name = "Chassis")
     private final Chassis chassis = Chassis.getInstance();
     @Logged(name = "Vision")
     private final Vision vision = Vision.getInstance();
+    @Logged(name = "Elevator")
+    private final Elevator elevator = Elevator.getInstance();
+    @Logged(name = "OI")
+    private final OI oi = OI.getInstance();
 
     @NotLogged
     private final List<SubsystemIF> subsystems = List.of(
-        oi.initialize(),
         chassis.initialize(),
-        vision.initialize()
+        vision.initialize(),
+        elevator.initialize(),
+        oi.initialize()
     );
 
     // Robot
@@ -83,11 +87,16 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
-        CommandScheduler.getInstance().cancelAll();
+        oi.initializeSysId();
     }
 
     @Override
     public void testPeriodic() {}
+
+    @Override
+    public void testExit() {
+        oi.cleanUpSysId();
+    }
 
     // Simulation
 

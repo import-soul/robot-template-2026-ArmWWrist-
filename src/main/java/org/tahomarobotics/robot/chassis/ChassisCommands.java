@@ -25,7 +25,7 @@ public class ChassisCommands {
                             chassis.finalizeCalibration();
                         }
                     })
-        ).onlyWhile(RobotState::isDisabled);
+        ).onlyWhile(RobotState::isDisabled).ignoringDisable(true);
         cmd.addRequirements(chassis);
 
         return cmd;
