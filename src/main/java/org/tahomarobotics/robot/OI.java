@@ -13,10 +13,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.tahomarobotics.robot.chassis.Chassis;
 import org.tahomarobotics.robot.chassis.ChassisCommands;
+import org.tahomarobotics.robot.collector.Collector;
+import org.tahomarobotics.robot.collector.CollectorCommands;
 import org.tahomarobotics.robot.elevator.Elevator;
 import org.tahomarobotics.robot.elevator.ElevatorConstants;
-import org.tahomarobotics.robot.indexer.Indexer;
-import org.tahomarobotics.robot.indexer.IndexerCommands;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.util.sysid.SysIdTests;
 
@@ -36,11 +36,12 @@ public class OI extends SubsystemIF {
 
     // -- Subsystems --
 
-    private final Indexer indexer = Indexer.getInstance();
+    //    private final Indexer indexer = Indexer.getInstance();
+    private final Collector collector = Collector.getInstance();
     private final Chassis chassis = Chassis.getInstance();
     private final Elevator elevator = Elevator.getInstance();
 
-    private final List<SubsystemIF> subsystems = List.of(indexer, chassis, elevator);
+    private final List<SubsystemIF> subsystems = List.of(/*indexer,*/ collector, chassis, elevator);
 
     // -- Controllers --
 
@@ -67,17 +68,27 @@ public class OI extends SubsystemIF {
 
         controller.povDown().onTrue(Commands.runOnce(chassis::orientToZeroHeading));
 
+        // Collector
+
+        controller.leftBumper().onTrue(CollectorCommands.createDeploymentControlCommand(collector));
+        controller.leftStick().onTrue(collector.runOnce(collector::toggleCollectionMode));
+
+        Pair<Command, Command> ejectCommands = CollectorCommands.createEjectCommands(collector);
+        controller.povLeft().onTrue(ejectCommands.getFirst()).onFalse(ejectCommands.getSecond());
+
+        Pair<Command, Command> collectorCommands = CollectorCommands.createCollectorControlCommands(collector);
+        controller.leftTrigger().onTrue(collectorCommands.getFirst()).onFalse(collectorCommands.getSecond());
+
         // Indexer
 
-        Pair<Command, Command> indexerCommands = IndexerCommands.createIndexerCommands(indexer);
-        controller.leftTrigger().onTrue(indexerCommands.getFirst()).onFalse(indexerCommands.getSecond());
-
-        Pair<Command, Command> indexerEjectingCommands = IndexerCommands.createIndexerEjectingCommands(indexer);
-        controller.povLeft().onTrue(indexerEjectingCommands.getFirst())
-                       .onFalse(indexerEjectingCommands.getSecond());
+//        Pair<Command, Command> indexerCommands = IndexerCommands.createIndexerCommands(indexer);
+//        controller.leftTrigger().onTrue(indexerCommands.getFirst()).onFalse(indexerCommands.getSecond());
+//
+//        Pair<Command, Command> indexerEjectingCommands = IndexerCommands.createIndexerEjectingCommands(indexer);
+//        controller.povLeft().onTrue(indexerEjectingCommands.getFirst())
+//                       .onFalse(indexerEjectingCommands.getSecond());
 
         // Elevator
-
         // TODO: Temporary Controls
 
         controller.y().onTrue(Commands.runOnce(

@@ -69,6 +69,7 @@ public class Elevator extends SubsystemIF {
         // Configure hardware
 
         RobustConfigurator.tryConfigureTalonFX("Elevator Left Motor", leftMotor, motorConfiguration);
+        rightMotor.setControl(new Follower(RobotMap.ELEVATOR_LEFT_MOTOR, true));
 
         // Load previous calibration
 
@@ -96,6 +97,9 @@ public class Elevator extends SubsystemIF {
             encoder.getPosition(), encoder.getVelocity()
         );
 
+        // Required for following
+        BaseStatusSignal.setUpdateFrequencyForAll(
+            RobotConfiguration.MECHANISM_UPDATE_FREQUENCY, leftMotor.getMotorVoltage(), rightMotor.getMotorVoltage());
         ParentDevice.optimizeBusUtilizationForAll(leftMotor, rightMotor, encoder);
     }
 
@@ -127,6 +131,7 @@ public class Elevator extends SubsystemIF {
     }
 
     public void applyOffset() {
+        leftMotor.setPosition(0);
         RobustConfigurator.trySetCancoderAngularOffset("Elevator Encoder", encoder, angularOffset);
         RobustConfigurator.trySetMotorNeutralMode("Elevator Left Motor", leftMotor, NeutralModeValue.Brake);
     }
@@ -172,9 +177,6 @@ public class Elevator extends SubsystemIF {
         }
 
         targetHeight = MathUtil.clamp(height, ELEVATOR_MIN_POSE, ELEVATOR_MAX_POSE);
-        rightMotor.setControl(
-            new Follower(RobotMap.ELEVATOR_LEFT_MOTOR, true)
-        );
         leftMotor.setControl(
             positionControl.withPosition(targetHeight)
         );
@@ -182,7 +184,6 @@ public class Elevator extends SubsystemIF {
 
     public void stop() {
         leftMotor.stopMotor();
-        rightMotor.stopMotor();
     }
 
     // -- Periodic --
@@ -210,7 +211,8 @@ public class Elevator extends SubsystemIF {
             SysIdTests.characterize(
                 "Elevator", this, leftMotor,
                 Volts.of(0.25).per(Second), Volts.of(1),
-                rightMotor
+                rightMotor,
+                true
             )
         );
     }
