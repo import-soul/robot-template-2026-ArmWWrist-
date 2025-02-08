@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.tahomarobotics.robot.RobotConfiguration;
 import org.tahomarobotics.robot.RobotMap;
+import org.tahomarobotics.robot.indexer.Indexer;
 import org.tahomarobotics.robot.util.RobustConfigurator;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.util.game.GamePiece;
@@ -116,6 +117,8 @@ public class Collector extends SubsystemIF {
     public static Collector getInstance() {
         return INSTANCE;
     }
+
+    private static final Indexer indexer = Indexer.getInstance();
 
     // -- Zeroing --
 
@@ -225,6 +228,9 @@ public class Collector extends SubsystemIF {
             case COLLECTING -> {
                 if (collectorCurrent.getValueAsDouble() > ALGAE_HOLDING_CURRENT_THRESHOLD && collectionMode == GamePiece.ALGAE) {
                     collectorTransitionToHolding();
+                }
+                if (indexer.isCoralInRollers()){
+                    collectorTransitionToDisabled();
                 }
             }
         }

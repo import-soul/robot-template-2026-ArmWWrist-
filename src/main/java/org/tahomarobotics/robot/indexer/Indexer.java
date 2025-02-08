@@ -10,6 +10,7 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.wpilibj.DigitalInput;
 import org.tahomarobotics.robot.RobotConfiguration;
 import org.tahomarobotics.robot.RobotMap;
 import org.tahomarobotics.robot.util.RobustConfigurator;
@@ -30,6 +31,8 @@ public class Indexer extends SubsystemIF {
     // Hardware
 
     private final TalonFX motor;
+
+    private final DigitalInput beambreak;
 
     // Status Signals
 
@@ -53,6 +56,8 @@ public class Indexer extends SubsystemIF {
         // Create hardware
 
         motor = new TalonFX(RobotMap.INDEXER_MOTOR);
+
+        beambreak = new DigitalInput(RobotMap.BEAM_BREAK);
 
         // Configure hardware
 
@@ -89,11 +94,9 @@ public class Indexer extends SubsystemIF {
     }
 
     private void stateMachine() {
-        // TODO: These states are currently bypassed due to the indexer being unable to serialize
-        //       the piece to a known position.
         switch (state) {
             case INDEXING -> {
-                if (isCoralInRollers()) {
+                if (isCoralInRollers() && isArmAtCollecting()) {
                     transitionToSerializing();
                 }
             }
@@ -151,16 +154,20 @@ public class Indexer extends SubsystemIF {
         return current.getValueAsDouble();
     }
 
-    // -- Triggers --
-
-    private boolean isCoralInRollers() {
-        // TODO: Add beam break on comp bot.
-        return false;
+    @Logged
+    public boolean isCoralInRollers() {
+        return !beambreak.get();
     }
 
+    // -- Triggers --
     private boolean isCollected() {
         if (state.type != IndexerState.MotionType.POSITION) { return false; }
         return Math.abs(state.value - getPosition()) < POSITION_THRESHOLD;
+    }
+
+    private boolean isArmAtCollecting() {
+        // TODO: Check if the arm is in the collected position
+        return true;
     }
 
     // -- Setter(s) --
@@ -174,7 +181,6 @@ public class Indexer extends SubsystemIF {
     @Override
     public void periodic() {
         BaseStatusSignal.refreshAll(position, velocity, current);
-
         stateMachine();
     }
 

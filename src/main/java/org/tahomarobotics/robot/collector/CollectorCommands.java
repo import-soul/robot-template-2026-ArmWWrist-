@@ -3,8 +3,10 @@ package org.tahomarobotics.robot.collector;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import org.tahomarobotics.robot.indexer.Indexer;
 
 public class CollectorCommands {
+    private static final Indexer indexer = Indexer.getInstance();
     static Command createZeroCommand(Collector collector) {
         return collector.runOnce(collector::setZeroingVoltage)
                         .andThen(Commands.waitSeconds(0.1))
@@ -27,7 +29,7 @@ public class CollectorCommands {
     /** @return On true and on false commands. */
     public static Pair<Command, Command> createCollectorControlCommands(Collector collector) {
         Command onTrue = collector.runOnce(() -> {
-            if (collector.isDeploymentCollecting() && !collector.isHoldingAlgae()) {
+            if (collector.isDeploymentCollecting() && !collector.isHoldingAlgae() && !indexer.isCoralInRollers()) {
                 // TODO: Only if not coral collected (from indexer or arm).
                 collector.collectorTransitionToCollecting();
             }
