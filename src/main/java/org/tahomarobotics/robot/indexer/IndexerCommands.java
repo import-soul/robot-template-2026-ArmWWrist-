@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class IndexerCommands {
     public static Pair<Command, Command> createIndexerCommands(Indexer indexer) {
-        Command onTrue = indexer.runOnce(indexer::transitionToIndexing);
+        Command onTrue = indexer.runOnce(indexer::transitionToCollecting);
         Command onFalse = indexer.runOnce(indexer::transitionToDisabled);
 
         return Pair.of(onTrue, onFalse);

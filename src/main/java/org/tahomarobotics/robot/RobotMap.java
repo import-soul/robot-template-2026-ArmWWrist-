@@ -29,7 +29,6 @@ public final class RobotMap {
     public static final int ARM_ENCODER = 16;
 
     public static final int END_EFFECTOR_MOTOR = 17;
-
     public static final int INDEXER_MOTOR = 18;
 
     public static final int CLIMBER_MOTOR = 19;

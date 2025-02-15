@@ -8,14 +8,18 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.tahomarobotics.robot.RobotConfiguration;
 import org.tahomarobotics.robot.RobotMap;
+import org.tahomarobotics.robot.indexer.Indexer;
 import org.tahomarobotics.robot.util.RobustConfigurator;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.util.signals.LoggedStatusSignal;
+import org.tahomarobotics.robot.util.sysid.SysIdTests;
 
 import java.util.List;
 
+import static edu.wpi.first.units.Units.*;
 import static org.tahomarobotics.robot.grabber.GrabberConstants.*;
 
 @Logged(strategy = Logged.Strategy.OPT_IN)
@@ -26,12 +30,12 @@ public class Grabber extends SubsystemIF {
 
     // Hardware
 
-    private final TalonFX grabberMotor;
+    private final TalonFX motor;
 
     // Status Signals
 
     private final StatusSignal<AngularVelocity> grabberVelocity;
-    private final StatusSignal<Current> grabberCurrent;
+    private final StatusSignal<Current> current;
 
     @Logged
     private final LoggedStatusSignal.List statusSignals;
@@ -45,161 +49,128 @@ public class Grabber extends SubsystemIF {
     // State
 
     @Logged
-    private GrabberState grabberState = GrabberState.DISABLED;
-    @Logged
-    private int frameCounter = 0;
+    private GrabberState state = GrabberState.DISABLED;
 
     // -- Initialization --
 
     private Grabber() {
         // Create hardware
 
-        grabberMotor = new TalonFX(RobotMap.END_EFFECTOR_MOTOR);
+        motor = new TalonFX(RobotMap.END_EFFECTOR_MOTOR);
 
         // Configure hardware
 
-        RobustConfigurator.tryConfigureTalonFX("Grabber Motor", grabberMotor, grabberMotorConfig);
+        RobustConfigurator.tryConfigureTalonFX("Grabber Motor", motor, motorConfig);
 
         // Bind status signals
 
-        grabberVelocity = grabberMotor.getVelocity();
-        grabberCurrent = grabberMotor.getSupplyCurrent();
+        grabberVelocity = motor.getVelocity();
+        current = motor.getSupplyCurrent();
 
         statusSignals = new LoggedStatusSignal.List(List.of(
             new LoggedStatusSignal("Grabber Velocity", grabberVelocity),
-            new LoggedStatusSignal("Grabber Current", grabberCurrent)
+            new LoggedStatusSignal("Grabber Current", current)
         ));
 
         statusSignals.setUpdateFrequencyForAll(RobotConfiguration.MECHANISM_UPDATE_FREQUENCY);
-        ParentDevice.optimizeBusUtilizationForAll(grabberMotor);
+        ParentDevice.optimizeBusUtilizationForAll(motor);
     }
 
     public static Grabber getInstance() {
         return INSTANCE;
     }
 
+    private static final Indexer indexer = Indexer.getInstance();
+
+    // -- State Machine --
+
+    public void setTargetState(GrabberState state) {
+        this.state = state;
+
+        switch (state.type) {
+            case NONE -> motor.stopMotor();
+            case VELOCITY -> motor.setControl(velocityControl.withVelocity(state.value));
+            case VOLTAGE -> motor.setControl(voltageControl.withOutput(state.value));
+        }
+    }
+
+    private void stateMachine() {
+        switch(state) {
+            case COLLECTING -> {
+                if (indexer.isCollected()) {
+                    transitionToHolding();
+                }
+            }
+        }
+    }
+
+    // Transitions
+
+    public void transitionToDisabled() {
+        if (isHolding()) return;
+        setTargetState(GrabberState.DISABLED);
+    }
+
+    public void transitionToHolding() {
+        setTargetState(GrabberState.HOLDING);
+    }
+
+    public void transitionToCollecting() {
+        if (!isArmAtPassing() || isHolding()) return;
+        setTargetState(GrabberState.COLLECTING);
+    }
+
+    public void transitionToEjecting() {
+        setTargetState(GrabberState.EJECTING);
+    }
+
     // -- Getters --
 
-    public GrabberState getGrabberState() {
-        return grabberState;
+    public boolean isArmAtPassing() {
+        // TODO: Check if the arm is in the collecting position
+        return SmartDashboard.getBoolean("arm at position", true);
     }
 
-    @Logged(name = "grabberVelocity")
-    public double getVelocity() {
-        return grabberVelocity.getValueAsDouble();
+    @Logged
+    public boolean isDisabled() {
+        return state == GrabberState.DISABLED;
     }
 
-    // -- Grabber Control --
-
-    public void setGrabberState(GrabberState state) {
-        grabberState = state;
+    @Logged
+    public boolean isHolding() {
+        return state == GrabberState.HOLDING;
     }
 
-    private void ejectCoral() {
-        grabberMotor.setControl(velocityControl.withVelocity(GrabberConstants.CORAL_EJECT_VELOCITY));
+    @Logged
+    public boolean isCollecting() {
+        return state == GrabberState.COLLECTING;
     }
 
-    private void holdCoral() {
-        // Holding must be a voltage because we will not see any feedback for a PID loop
-        grabberMotor.setControl(voltageControl.withOutput(GrabberConstants.CORAL_HOLD_VOLTAGE));
-    }
-
-    private void collectCoral() {
-        grabberMotor.setControl(velocityControl.withVelocity(GrabberConstants.CORAL_COLLECT_VELOCITY));
-    }
-
-    private void holdAlgae() {
-        grabberMotor.setVoltage(GrabberConstants.ALGAE_HOLD_VOLTAGE);
-    }
-
-    private void collectAlgae() {
-        grabberMotor.setControl(velocityControl.withVelocity(GrabberConstants.ALGAE_COLLECT_VELOCITY));
-    }
-
-    private void ejectAlgae() {
-        grabberMotor.setControl(velocityControl.withVelocity(GrabberConstants.ALGAE_EJECT_VELOCITY));
+    @Logged
+    public boolean isEjecting() {
+        return state == GrabberState.EJECTING;
     }
 
     // -- Periodic --
 
     @Override
     public void periodic() {
-        switch(grabberState) {
-            case COLLECTING_CORAL -> {
-                collectCoral();
-                if (Math.abs(grabberMotor.getVelocity().getValueAsDouble()) < GrabberConstants.CORAL_GRABBED_VELOCITY_THRESHOLD) {
-                    frameCounter += 1;
-                } else {
-                    frameCounter = 0;
-                }
-
-                if (frameCounter > GrabberConstants.CORAL_GRABBED_CHECK_TIME / 0.02) {
-                    setGrabberState(GrabberState.HOLDING_CORAL);
-                    frameCounter = 0;
-                }
-             }
-            case HOLDING_CORAL -> {
-                holdCoral();
-            }
-            case EJECTING_CORAL -> {
-                ejectCoral();
-                if (Math.abs(grabberMotor.getVelocity().getValueAsDouble()) > GrabberConstants.CORAL_EJECTED_VELOCITY_THRESHOLD) {
-                    frameCounter += 1;
-                } else {
-                    frameCounter = 0;
-                }
-
-                if (frameCounter > GrabberConstants.CORAL_EJECTED_CHECK_TIME / 0.02) {
-                    setGrabberState(GrabberState.DISABLED);
-                    frameCounter = 0;
-                }
-            }
-            case DISABLED ->  {
-                grabberMotor.stopMotor();
-            }
-            case COLLECTING_ALGAE -> {
-                collectAlgae();
-                if (Math.abs(grabberMotor.getVelocity().getValueAsDouble()) > GrabberConstants.ALGAE_COLLECT_VELOCITY_THRESHOLD) {
-                    frameCounter += 1;
-                }
-                else {
-                    frameCounter= 0;
-                }
-
-                if (frameCounter > GrabberConstants.ALGAE_COLLECT_CHECK_TIME / 0.02) {
-                    setGrabberState(GrabberState.HOLDING_ALGAE);
-                    frameCounter = 0;
-                }
-            }
-            case HOLDING_ALGAE -> {
-                holdAlgae();
-            }
-            case EJECTING_ALGAE -> {
-                ejectAlgae();
-                if (Math.abs(grabberMotor.getVelocity().getValueAsDouble()) > GrabberConstants.ALGAE_EJECT_VELOCITY_THRESHOLD) {
-                    frameCounter += 1;
-                }
-                else {
-                    frameCounter = 0;
-                }
-                if (frameCounter > GrabberConstants.ALGAE_EJECT_CHECK_TIME / 0.02) {
-                    setGrabberState(GrabberState.DISABLED);
-                    frameCounter = 0;
-                }
-            }
-
-        }
+        statusSignals.refreshAll();
+        stateMachine();
     }
 
-    // -- States --
+    // -- SysId --
 
-    public enum GrabberState {
-        DISABLED,
-        COLLECTING_CORAL,
-        HOLDING_CORAL,
-        EJECTING_CORAL,
-        COLLECTING_ALGAE,
-        EJECTING_ALGAE,
-        HOLDING_ALGAE,
+    @Override
+    public List<SysIdTests.Test> getSysIdTests() {
+        return List.of(
+            SysIdTests.characterize(
+                "Grabber",
+                this,
+                motor,
+                Volts.of(0.25).per(Second),
+                Volts.of(1)
+            )
+        );
     }
 }

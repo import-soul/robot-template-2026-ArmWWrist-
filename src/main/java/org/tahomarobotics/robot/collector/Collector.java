@@ -122,17 +122,17 @@ public class Collector extends SubsystemIF {
 
     // -- Zeroing --
 
-    void setZeroingVoltage() {
+    public void setZeroingVoltage() {
         leftMotor.setVoltage(DEPLOY_ZEROING_VOLTAGE);
         rightMotor.setVoltage(DEPLOY_ZEROING_VOLTAGE);
     }
 
-    boolean isDeployStopped() {
+    public boolean isDeployStopped() {
         return leftDeployVelocity.getValueAsDouble() < DEPLOY_MOVING_VELOCITY_THRESHOLD &&
                rightDeployVelocity.getValueAsDouble() < DEPLOY_MOVING_VELOCITY_THRESHOLD;
     }
 
-    void zero() {
+    public void zero() {
         leftMotor.setPosition(TargetDeployState.ZEROED.angle);
         rightMotor.setPosition(TargetDeployState.ZEROED.angle);
 
@@ -229,7 +229,7 @@ public class Collector extends SubsystemIF {
                 if (collectorCurrent.getValueAsDouble() > ALGAE_HOLDING_CURRENT_THRESHOLD && collectionMode == GamePiece.ALGAE) {
                     collectorTransitionToHolding();
                 }
-                if (indexer.isCoralInRollers()){
+                if (indexer.beamBreakTripped()){
                     collectorTransitionToDisabled();
                 }
             }
@@ -249,15 +249,26 @@ public class Collector extends SubsystemIF {
 
     // Transitions
 
-    public void collectorTransitionToDisabled() { setTargetCollectorState(TargetCollectorState.DISABLED); }
+    public void collectorTransitionToDisabled() {
+        setTargetCollectorState(TargetCollectorState.DISABLED);
+    }
 
-    public void collectorTransitionToHolding() { setTargetCollectorState(TargetCollectorState.HOLDING_ALGAE); }
+    public void collectorTransitionToHolding() {
+        setTargetCollectorState(TargetCollectorState.HOLDING_ALGAE);
+    }
 
-    public void collectorTransitionToCollecting() { setTargetCollectorState(TargetCollectorState.COLLECTING); }
+    public void collectorTransitionToCollecting() {
+        if (indexer.isCollected()) return;
+        setTargetCollectorState(TargetCollectorState.COLLECTING);
+    }
 
-    private void collectorTransitionToEjecting() { setTargetCollectorState(TargetCollectorState.EJECTING); }
+    private void collectorTransitionToEjecting() {
+        setTargetCollectorState(TargetCollectorState.EJECTING);
+    }
 
-    private void collectorCancelEjecting() { setTargetCollectorState(TargetCollectorState.DISABLED); }
+    private void collectorCancelEjecting() {
+        setTargetCollectorState(TargetCollectorState.DISABLED);
+    }
 
     // -- Combined Transitions --
 

@@ -36,7 +36,7 @@ ELEVATOR_MIN_POSE = 0.01
 END_EFFECTOR_MIN_POSE = -0.21
 
 COLLECTOR_STOWED_MIN_X = 0.23 + CENTER_X_TO_ELEVATOR
-COLLECTOR_STOWED_HEIGHT = 0.6531 + PIVOT_TO_GROUND
+COLLECTOR_STOWED_HEIGHT = 0.30 + PIVOT_TO_GROUND
 
 WHEEL_BASE_FWD = 0.527 / 2 - CENTER_X_TO_ELEVATOR  # between steer pivots
 WHEEL_BASE_REV = -0.527 / 2 - CENTER_X_TO_ELEVATOR  # between steer pivots
@@ -509,6 +509,7 @@ class Editor:
             self.add_drag_point(dpg.get_plot_mouse_pos())
 
     def add_drag_point(self, pos, tan=[0, 0.01]):
+        print(f"Adding point: ({pos[0]}, {pos[1]})")
         tag = dpg.add_drag_point(
             parent=self.ui_plot.tag,
             color=get_color("lavender"),
@@ -619,7 +620,7 @@ class Editor:
     def open(self, _, data):
         with open(data["file_path_name"], "r") as f:
             text = f.read()
-            data = [map(lambda s: float(s), p.split(" ")) for p in text.splitlines()]
+            data = [list(map(lambda s: float(s), p.split(" "))) for p in text.splitlines()]
             self.points.clear()
             for drag in self.point_indices.keys():
                 dpg.delete_item(drag)

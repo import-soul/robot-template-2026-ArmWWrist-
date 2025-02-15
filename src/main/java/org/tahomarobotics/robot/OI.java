@@ -18,6 +18,7 @@ import org.tahomarobotics.robot.climber.commands.ClimberCommands;
 import org.tahomarobotics.robot.collector.Collector;
 import org.tahomarobotics.robot.collector.CollectorCommands;
 import org.tahomarobotics.robot.grabber.Grabber;
+import org.tahomarobotics.robot.grabber.GrabberCommands;
 import org.tahomarobotics.robot.indexer.Indexer;
 import org.tahomarobotics.robot.indexer.IndexerCommands;
 import org.tahomarobotics.robot.util.SubsystemIF;
@@ -95,6 +96,15 @@ public class OI extends SubsystemIF {
         controller.povLeft().onTrue(indexerEjectingCommands.getFirst())
                   .onFalse(indexerEjectingCommands.getSecond());
 
+        //Grabber
+
+        Pair<Command, Command> grabberCommands = GrabberCommands.createGrabberCommands(grabber);
+        controller.leftTrigger().onTrue(grabberCommands.getFirst()).onFalse(grabberCommands.getSecond());
+
+        Pair<Command, Command> grabberEjectingCommands = GrabberCommands.createGrabberEjectingCommands(grabber);
+        controller.povLeft().onTrue(grabberEjectingCommands.getFirst())
+                  .onFalse(grabberEjectingCommands.getSecond());
+
         // Elevator
         // TODO: Temporary Controls
 
@@ -126,19 +136,6 @@ public class OI extends SubsystemIF {
                 () -> windmill.setElevatorHeight(WindmillConstants.ELEVATOR_COLLECT_POSE)));
         SmartDashboard.putData(
             "Set Arm Collecting", Commands.runOnce(() -> windmill.setArmPosition(WindmillConstants.ARM_COLLECT_POSE)));
-
-        SmartDashboard.putData(
-            "Set Grabber Collecting",
-            Commands.runOnce(() -> grabber.setGrabberState(Grabber.GrabberState.COLLECTING_CORAL))
-        );
-        SmartDashboard.putData(
-            "Set Grabber Holding", Commands.runOnce(() -> grabber.setGrabberState(Grabber.GrabberState.HOLDING_ALGAE)));
-        SmartDashboard.putData(
-            "Set Grabber Ejecting",
-            Commands.runOnce(() -> grabber.setGrabberState(Grabber.GrabberState.EJECTING_CORAL))
-        );
-        SmartDashboard.putData(
-            "Set Grabber Disabled", Commands.runOnce(() -> grabber.setGrabberState(Grabber.GrabberState.DISABLED)));
     }
 
     public void setDefaultCommands() {

@@ -1,0 +1,20 @@
+package org.tahomarobotics.robot.grabber;
+
+import edu.wpi.first.math.Pair;
+import edu.wpi.first.wpilibj2.command.Command;
+
+public class GrabberCommands {
+    public static Pair<Command, Command> createGrabberCommands(Grabber grabber) {
+        Command onTrue = grabber.runOnce(grabber::transitionToCollecting);
+        Command onFalse = grabber.runOnce(grabber::transitionToDisabled);
+
+        return Pair.of(onTrue, onFalse);
+    }
+
+    public static Pair<Command, Command> createGrabberEjectingCommands(Grabber grabber) {
+        Command onTrue = grabber.runOnce(grabber::transitionToEjecting);
+        Command onFalse = grabber.runOnce(grabber::transitionToDisabled);
+
+        return Pair.of(onTrue, onFalse);
+    }
+}

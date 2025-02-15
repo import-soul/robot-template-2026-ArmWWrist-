@@ -75,7 +75,7 @@ public class CollectorConstants {
         STOW(Units.degreesToRotations(75)),
         CORAL_COLLECT(Units.degreesToRotations(-20.75)),
         ALGAE_COLLECT(Units.degreesToRotations(0)),
-        EJECT(Units.degreesToRotations(0));
+        EJECT(Units.degreesToRotations(-20.75));
 
         /** Angle of the deploy motors in rotations for this state. */
         public final double angle;

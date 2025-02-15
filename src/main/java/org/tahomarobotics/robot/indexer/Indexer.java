@@ -11,6 +11,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.tahomarobotics.robot.RobotConfiguration;
 import org.tahomarobotics.robot.RobotMap;
 import org.tahomarobotics.robot.util.RobustConfigurator;
@@ -48,7 +49,7 @@ public class Indexer extends SubsystemIF {
     // State
 
     @Logged
-    private IndexerConstants.IndexerState state = IndexerConstants.IndexerState.DISABLED;
+    private IndexerState state = IndexerState.DISABLED;
 
     // -- Initialization --
 
@@ -72,6 +73,8 @@ public class Indexer extends SubsystemIF {
         BaseStatusSignal.setUpdateFrequencyForAll(
             RobotConfiguration.MECHANISM_UPDATE_FREQUENCY, position, velocity, current);
         ParentDevice.optimizeBusUtilizationForAll(motor);
+
+        SmartDashboard.putBoolean("arm at position", true);
     }
 
     public static Indexer getInstance() {
@@ -80,14 +83,10 @@ public class Indexer extends SubsystemIF {
 
     // -- State Machine --
 
-    private void setTargetState(IndexerConstants.IndexerState state) {
+    private void setTargetState(IndexerState state) {
         this.state = state;
 
         switch (state.type) {
-            case POSITION -> {
-                zeroPosition();
-                motor.setControl(positionControl.withPosition(state.value));
-            }
             case VELOCITY -> motor.setControl(velocityControl.withVelocity(state.value));
             case NONE -> motor.stopMotor();
         }
@@ -95,14 +94,18 @@ public class Indexer extends SubsystemIF {
 
     private void stateMachine() {
         switch (state) {
-            case INDEXING -> {
-                if (isCoralInRollers() && isArmAtCollecting()) {
-                    transitionToSerializing();
+            case COLLECTING -> {
+                if (beamBreakTripped() && isArmAtPassing()) transitionToPassing();
+                if (beamBreakTripped() && !isArmAtPassing()) transitionToHolding();
+            }
+            case PASSING -> {
+                if (!beamBreakTripped()) {
+                    transitionToCollected();
                 }
             }
-            case SERIALIZING -> {
-                if (isCollected()) {
-                    transitionToCollected();
+            case HOLDING -> {
+                if (isArmAtPassing()) {
+                    transitionToPassing();
                 }
             }
             default -> {}
@@ -112,29 +115,30 @@ public class Indexer extends SubsystemIF {
     // Transitions
 
     public void transitionToDisabled() {
-        if (state == IndexerState.INDEXING || state == IndexerState.EJECTING) {
-            setTargetState(IndexerConstants.IndexerState.DISABLED);
+        if (state == IndexerState.COLLECTING || state == IndexerState.EJECTING) {
+            setTargetState(IndexerState.DISABLED);
         }
     }
 
-    public void transitionToIndexing() {
-        if (state != IndexerConstants.IndexerState.DISABLED) {
-            return;
-        }
-
-        setTargetState(IndexerConstants.IndexerState.INDEXING);
+    public void transitionToCollected() {
+        setTargetState(IndexerState.COLLECTED);
     }
 
-    private void transitionToSerializing() {
-        setTargetState(IndexerConstants.IndexerState.SERIALIZING);
+    public void transitionToCollecting() {
+        if (state != IndexerState.DISABLED) return;
+        setTargetState(IndexerState.COLLECTING);
     }
 
-    private void transitionToCollected() {
-        setTargetState(IndexerConstants.IndexerState.COLLECTED);
+    public void transitionToHolding() {
+        setTargetState(IndexerState.HOLDING);
+    }
+
+    private void transitionToPassing() {
+        setTargetState(IndexerState.PASSING);
     }
 
     public void transitionToEjecting() {
-        setTargetState(IndexerConstants.IndexerState.EJECTING);
+        setTargetState(IndexerState.EJECTING);
     }
 
     // -- Getter(s) --
@@ -154,20 +158,46 @@ public class Indexer extends SubsystemIF {
         return current.getValueAsDouble();
     }
 
+    // -- Triggers --
     @Logged
-    public boolean isCoralInRollers() {
+    public boolean beamBreakTripped() {
         return !beambreak.get();
     }
 
-    // -- Triggers --
-    private boolean isCollected() {
-        if (state.type != IndexerState.MotionType.POSITION) { return false; }
-        return Math.abs(state.value - getPosition()) < POSITION_THRESHOLD;
+    @Logged
+    public boolean isCollecting() {
+        return state == IndexerState.COLLECTING;
     }
 
-    private boolean isArmAtCollecting() {
+    @Logged
+    public boolean isEjecting() {
+        return state == IndexerState.EJECTING;
+    }
+
+    @Logged
+    public boolean isPassing() {
+        return state == IndexerState.PASSING;
+    }
+
+    @Logged
+    public boolean isCollected() {
+        return state == IndexerState.COLLECTED;
+    }
+
+    @Logged
+    public boolean isHolding() {
+        return state == IndexerState.HOLDING;
+    }
+
+    @Logged
+    public boolean isDisabled() {
+        return state == IndexerState.DISABLED;
+    }
+
+    @Logged
+    public boolean isArmAtPassing() {
         // TODO: Check if the arm is in the collected position
-        return true;
+        return SmartDashboard.getBoolean("arm at position", true);
     }
 
     // -- Setter(s) --
