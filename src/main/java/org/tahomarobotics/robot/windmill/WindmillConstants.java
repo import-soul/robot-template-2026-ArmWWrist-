@@ -14,7 +14,7 @@ public class WindmillConstants {
     // States
 
     public enum TrajectoryState {
-        COLLECT(new Translation2d(-0.056, -0.23)),
+        COLLECT(new Translation2d(-0.025, -0.22)),
         STOW(new Translation2d(0, 0.7)),
         L4(new Translation2d(-0.332, 1.59)),
         L3(new Translation2d(-0.28, 1)),

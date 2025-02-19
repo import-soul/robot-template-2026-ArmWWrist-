@@ -1,12 +1,15 @@
 package org.tahomarobotics.robot.windmill;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.util.Units;
 
+@Logged
 public record WindmillState(
     double timeSeconds,
     ElevatorState elevatorState,
     ArmState armState
 ) {
+    @Logged
     public record ElevatorState(
         double heightMeters,
         double velocityMetersPerSecond,
@@ -22,6 +25,7 @@ public record WindmillState(
         }
     }
 
+    @Logged
     public record ArmState(
         double angleRadians,
         double velocityRadiansPerSecond,

@@ -50,7 +50,7 @@ public class WindmillMoveCommand extends Command {
             return;
         }
 
-        if (!windmill.isAtTargetState()) {
+        if (!windmill.isAtTargetTrajectoryState()) {
             Logger.error(
                 "Windmill was not within tolerance for starting state! Arm was at ({}, {}) but needs to be at ({}, {})", windmill.getWindmillPositionX(),
                 windmill.getWindmillPositionY(), fromTo.getFirst().t2d.getX(), fromTo.getFirst().t2d.getY()
@@ -90,7 +90,7 @@ public class WindmillMoveCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return windmill.isAtTargetState() || timer.hasElapsed(trajectory.getDuration() + TIME_ELAPSED_TOLERANCE);
+        return windmill.isAtTargetTrajectoryState() || timer.hasElapsed(trajectory.getDuration() + TIME_ELAPSED_TOLERANCE);
     }
 
     @Override

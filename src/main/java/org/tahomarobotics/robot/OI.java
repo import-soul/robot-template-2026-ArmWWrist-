@@ -85,6 +85,9 @@ public class OI extends SubsystemIF {
         Pair<Command, Command> ejectCommands = CollectorCommands.createEjectCommands(collector);
         controller.povLeft().onTrue(ejectCommands.getFirst()).onFalse(ejectCommands.getSecond());
 
+        Pair<Command, Command> scoreCommands = CollectorCommands.createEjectCommands(collector);
+        controller.rightTrigger().onTrue(scoreCommands.getFirst()).onFalse(scoreCommands.getSecond());
+
         Pair<Command, Command> collectorCommands = CollectorCommands.createCollectorControlCommands(collector);
         controller.leftTrigger().onTrue(collectorCommands.getFirst()).onFalse(collectorCommands.getSecond());
 
@@ -97,14 +100,14 @@ public class OI extends SubsystemIF {
         controller.povLeft().onTrue(indexerEjectingCommands.getFirst())
                   .onFalse(indexerEjectingCommands.getSecond());
 
+        Pair<Command, Command> indexerScoringCommands = IndexerCommands.createIndexerEjectingCommands(indexer);
+        controller.rightTrigger().onTrue(indexerScoringCommands.getFirst())
+                  .onFalse(indexerScoringCommands.getSecond());
+
         //Grabber
 
         Pair<Command, Command> grabberCommands = GrabberCommands.createGrabberCommands(grabber);
         controller.leftTrigger().onTrue(grabberCommands.getFirst()).onFalse(grabberCommands.getSecond());
-
-        Pair<Command, Command> grabberEjectingCommands = GrabberCommands.createGrabberEjectingCommands(grabber);
-        controller.povLeft().onTrue(grabberEjectingCommands.getFirst())
-                  .onFalse(grabberEjectingCommands.getSecond());
 
         Pair<Command, Command> grabberScoringCommands = GrabberCommands.createGrabberScoringCommands(grabber);
         controller.rightTrigger().onTrue(grabberScoringCommands.getFirst())

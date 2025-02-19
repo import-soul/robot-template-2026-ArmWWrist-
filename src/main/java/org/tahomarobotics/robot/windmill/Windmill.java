@@ -1,6 +1,5 @@
 package org.tahomarobotics.robot.windmill;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -69,6 +68,7 @@ public class Windmill extends SubsystemIF {
 
     private double targetHeight;
     private double targetAngle;
+    private WindmillState targetState = WindmillState.fromPrevious(0, 0, 0, null);
     private TrajectoryState targetTrajectoryState = TrajectoryState.START;
 
     private boolean elevatorCalibrated = true, armCalibrated = true;
@@ -146,7 +146,7 @@ public class Windmill extends SubsystemIF {
         statusSignals.setUpdateFrequencyForAll(RobotConfiguration.MECHANISM_UPDATE_FREQUENCY);
 
         ParentDevice.optimizeBusUtilizationForAll(
-            elevatorLeftMotor, elevatorRightMotor, elevatorEncoder, armMotor, armEncoder);
+            elevatorLeftMotor, elevatorRightMotor, elevatorEncoder, armMotor);
     }
 
     public static Windmill getInstance() {
@@ -238,6 +238,11 @@ public class Windmill extends SubsystemIF {
         return new WindmillState(0, elevatorState, armState);
     }
 
+    @Logged(name = "Target State")
+    public WindmillState getTargetState() {
+        return targetState;
+    }
+
     @Logged(name = "Target Trajectory State")
     public TrajectoryState getTargetTrajectoryState() {
         return targetTrajectoryState;
@@ -293,13 +298,13 @@ public class Windmill extends SubsystemIF {
     }
 
     @Logged
-    public double distanceToTargetState() {
+    public double distanceToTargetTrajectoryState() {
         return targetTrajectoryState.t2d.getDistance(getWindmillPosition());
     }
 
     @Logged
-    public boolean isAtTargetState() {
-        return distanceToTargetState() < 0.03;
+    public boolean isAtTargetTrajectoryState() {
+        return distanceToTargetTrajectoryState() < 0.03;
     }
 
     // -- Control --
@@ -309,6 +314,8 @@ public class Windmill extends SubsystemIF {
     }
 
     public void setState(WindmillState state) {
+        targetState = state;
+
         setElevatorHeight(state.elevatorState().heightMeters());
         setArmPosition(Units.radiansToRotations(state.armState().angleRadians()));
     }
@@ -372,7 +379,7 @@ public class Windmill extends SubsystemIF {
 
     @Override
     public void periodic() {
-        BaseStatusSignal.refreshAll(elevatorPosition, elevatorVelocity, elevatorCurrent, armPosition, armVelocity, armCurrent);
+        statusSignals.refreshAll();
     }
 
     // -- Overrides --

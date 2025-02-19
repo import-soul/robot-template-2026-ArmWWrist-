@@ -220,6 +220,7 @@ class Editor:
             )
 
             dpg.add_key_release_handler(dpg.mvKey_D, callback=self.delete_closest_point)
+            dpg.add_key_release_handler(dpg.mvKey_M, callback=self.move_closest_point_to)
 
             dpg.add_key_release_handler(dpg.mvKey_F11, callback=toggle_fullscreen)
             dpg.add_key_release_handler(dpg.mvKey_F4, callback=dpg.stop_dearpygui)
@@ -286,6 +287,27 @@ class Editor:
 
         # Sync constraints back to the point
         dpg.set_value(sender, pos.to_list())
+        self.draw_trajectory()
+
+    def move_closest_point_to(self):
+        closest = self.trajectory.get_index_and_distance_to_closest_point_to_position(
+            P(*dpg.get_plot_mouse_pos())
+        )
+
+        if not closest:
+            return
+
+        index, distance = closest
+
+        logger.info(f"Moving point {index}...")
+        x = float(input("x: "))
+        y = float(input("y: "))
+
+        pos = P(x, y)
+
+        self.trajectory.set_point_position(index, pos)
+        dpg.set_value(self.point_indices[index].tag, pos.to_list())
+
         self.draw_trajectory()
 
     def delete_closest_point(self, ignore_distance=False):
