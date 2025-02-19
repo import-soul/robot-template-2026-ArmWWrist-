@@ -11,6 +11,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj2.command.Commands;
 import org.tahomarobotics.robot.RobotConfiguration;
 import org.tahomarobotics.robot.RobotMap;
 import org.tahomarobotics.robot.util.RobustConfigurator;
@@ -94,25 +96,13 @@ public class Climber extends SubsystemIF {
 
     @Override
     public Climber initialize() {
+        Commands.waitUntil(() -> RobotState.isEnabled() && !RobotState.isTest())
+            .andThen(this::zeroPosition)
+            .andThen(this::stow)
+            .ignoringDisable(true)
+            .schedule();
+
         return this;
-    }
-
-    @Override
-    public void onTeleopInit() {
-        if (!isZeroed) {
-            zeroPosition();
-            isZeroed = true;
-        }
-        stow();
-    }
-
-    @Override
-    public void onAutonomousInit() {
-        if (!isZeroed) {
-            zeroPosition();
-            isZeroed = true;
-        }
-        stow();
     }
 
     // -- Getters --
