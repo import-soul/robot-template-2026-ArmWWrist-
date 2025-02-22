@@ -10,8 +10,8 @@ public class ClimberConstants {
     public static final double CLIMBER_ZERO_POSITION = 0;
 
     public static final double STOW_POSITION = 0.04;
-    public static final double DEPLOY_POSITION = 0.16;
-    public static final double CLIMB_POSITION = -0.02;
+    public static final double DEPLOY_POSITION = 0.15;
+    public static final double CLIMB_POSITION = -0.07;
 
     public static final double CLIMB_POSITION_TOLERANCE = 0.005;
 

@@ -12,9 +12,15 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.tahomarobotics.robot.RobotConfiguration;
 import org.tahomarobotics.robot.RobotMap;
+import org.tahomarobotics.robot.climber.commands.ClimberCommands;
+import org.tahomarobotics.robot.collector.CollectorCommands;
+import org.tahomarobotics.robot.collector.CollectorConstants;
 import org.tahomarobotics.robot.util.RobustConfigurator;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.util.signals.LoggedStatusSignal;
@@ -56,11 +62,9 @@ public class Climber extends SubsystemIF {
     // State
 
     @Logged
-    private ClimberState climbState = ClimberState.STOWED;
+    private ClimberState climbState = ClimberState.ZEROED;
     @Logged
     private double targetPosition;
-    @Logged
-    private boolean isZeroed;
     @Logged
     private double solenoidVoltage;
 
@@ -96,11 +100,12 @@ public class Climber extends SubsystemIF {
 
     @Override
     public Climber initialize() {
-        Commands.waitUntil(() -> RobotState.isEnabled() && !RobotState.isTest())
-            .andThen(this::zeroPosition)
-            .andThen(this::stow)
-            .ignoringDisable(true)
-            .schedule();
+        new Trigger(() -> RobotState.isEnabled() && !RobotState.isTest())
+            .onTrue(
+                ClimberCommands
+                    .createZeroCommand(this)
+                    .onlyIf(() -> climbState.equals(ClimberState.ZEROED))
+            );
 
         return this;
     }
@@ -179,7 +184,8 @@ public class Climber extends SubsystemIF {
     public enum ClimberState {
         STOWED,
         DEPLOYED,
-        CLIMBED
+        CLIMBED,
+        ZEROED
     }
 
     // -- SysId --
