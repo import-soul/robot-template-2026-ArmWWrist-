@@ -163,7 +163,12 @@ public class OI extends SubsystemIF {
                 return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.LOW_DESCORE);
             }
         }));
-        controller.x().onTrue(windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.COLLECT, WindmillConstants.TrajectoryState.STOW));
+        controller.x().onTrue(Commands.deferredProxy(() -> {
+            if (windmill.isAtTargetTrajectoryState())
+                return windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.COLLECT, WindmillConstants.TrajectoryState.STOW);
+            else
+                return windmill.createResetToClosestCommand();
+        }));
 
         SmartDashboard.putData(
             "Set Elevator Collecting", Commands.runOnce(

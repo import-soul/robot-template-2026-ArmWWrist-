@@ -140,6 +140,7 @@ public class Windmill extends SubsystemIF {
     @Override
     public SubsystemIF initialize() {
         // Publish calibration commands
+        SmartDashboard.putData("Zero Windmill (Moving)", WindmillCommands.createElevatorZeroCommand(this));
         SmartDashboard.putData("Calibrate Windmill", WindmillCommands.createCalibrateCommand(this));
 
         // Calibrate on first enable
@@ -171,6 +172,10 @@ public class Windmill extends SubsystemIF {
     public void enableBrakeMode() {
         elevatorLeftMotor.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
         armMotor.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
+    }
+
+    public void setElevatorVoltage(double volts) {
+        elevatorLeftMotor.setVoltage(volts);
     }
 
     // -- Getters --
@@ -369,6 +374,34 @@ public class Windmill extends SubsystemIF {
         });
     }
 
+    public Command createResetToClosestCommand() {
+        return Commands.runOnce(() -> {
+            double angle = MathUtil.inputModulus(getArmPosition(), 0, 1);
+            Logger.info("Starting arm angle: {} rotations", angle);
+            if (angle > 0.5 && angle < 0.85) {
+                WindmillState collectState;
+                try {
+                    collectState = WindmillKinematics.inverseKinematics(0, TrajectoryState.COLLECT.t2d, null, false);
+                } catch (WindmillKinematics.KinematicsException e) {
+                    Logger.error("Cannot go to collect! This is a bug: {}", e);
+                    return;
+                }
+                setState(collectState);
+                setTargetState(TrajectoryState.COLLECT);
+            } else {
+                WindmillState stowState;
+                try {
+                    stowState = WindmillKinematics.inverseKinematics(0, TrajectoryState.STOW.t2d, null);
+                } catch (WindmillKinematics.KinematicsException e) {
+                    Logger.error("Cannot go to stow! This is a bug: {}", e);
+                    return;
+                }
+                setState(stowState);
+                setTargetState(TrajectoryState.STOW);
+            }
+        }, this);
+    }
+
     public void stopElevator() {
         elevatorLeftMotor.stopMotor();
     }
@@ -386,35 +419,10 @@ public class Windmill extends SubsystemIF {
 
     // -- Overrides --
 
-
     @Override
     public void onTeleopInit() {
-        (Commands.waitUntil(() -> zeroed))
-            .andThen(Commands.runOnce(() -> {
-                double angle = MathUtil.inputModulus(getArmPosition(), 0, 1);
-                Logger.info("Starting arm angle: {} rotations", angle);
-                if (angle > 0.5 && angle < 0.85) {
-                    WindmillState collectState;
-                    try {
-                        collectState = WindmillKinematics.inverseKinematics(0, TrajectoryState.COLLECT.t2d, null, false);
-                    } catch (WindmillKinematics.KinematicsException e) {
-                        Logger.error("Cannot go to collect! This is a bug: {}", e);
-                        return;
-                    }
-                    setState(collectState);
-                    setTargetState(TrajectoryState.COLLECT);
-                } else {
-                    WindmillState stowState;
-                    try {
-                        stowState = WindmillKinematics.inverseKinematics(0, TrajectoryState.STOW.t2d, null);
-                    } catch (WindmillKinematics.KinematicsException e) {
-                        Logger.error("Cannot go to stow! This is a bug: {}", e);
-                        return;
-                    }
-                    setState(stowState);
-                    setTargetState(TrajectoryState.STOW);
-                }
-            })).schedule();
+        Commands.waitUntil(() -> zeroed)
+            .andThen(createResetToClosestCommand()).schedule();
     }
 
     @Override

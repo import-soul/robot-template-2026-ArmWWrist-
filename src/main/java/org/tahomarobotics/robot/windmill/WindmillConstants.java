@@ -91,6 +91,9 @@ public class WindmillConstants {
 
     public static final double ARM_LENGTH = 0.6540246; // Meters
 
+    public static final double ELEVATOR_ZEROING_VOLTAGE = -1;
+    public static final double ELEVATOR_ZEROING_TIMEOUT = 0.2;
+
     // -- Constraints --
 
     public static final double END_EFFECTOR_MIN_HEIGHT = -0.25; // Bottom-most point the carriage hits
