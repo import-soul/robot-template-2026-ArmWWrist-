@@ -86,7 +86,7 @@ public class OI extends SubsystemIF {
         // Collector
 
         controller.leftBumper().onTrue(CollectorCommands.createDeploymentControlCommand(collector));
-        controller.leftStick().onTrue(collector.runOnce(collector::toggleCollectionMode));
+        controller.leftStick().onTrue(collector.runOnce(collector::toggleCollectionMode).andThen(windmill.createSyncCollectionModeCommand()));
 
         Pair<Command, Command> ejectCommands = CollectorCommands.createEjectCommands(collector);
         controller.povLeft().onTrue(ejectCommands.getFirst()).onFalse(ejectCommands.getSecond());
@@ -148,19 +148,19 @@ public class OI extends SubsystemIF {
                 () -> windmill.setArmPosition(WindmillConstants.ARM_TEST_POSE))
         );
 
-        controller.y().onTrue(windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.L4, WindmillConstants.TrajectoryState.COLLECT));
+        controller.y().onTrue(windmill.createTransitionCommand(WindmillConstants.TrajectoryState.L4));
         controller.b().onTrue(Commands.deferredProxy(() -> {
             if (collector.getCollectionMode() == GamePiece.CORAL) {
-                return windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.L3, WindmillConstants.TrajectoryState.COLLECT);
+                return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.L3);
             } else {
-                return windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.HIGH_DESCORE, WindmillConstants.TrajectoryState.COLLECT);
+                return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.HIGH_DESCORE);
             }
         }));
         controller.a().onTrue(Commands.deferredProxy(() -> {
             if (collector.getCollectionMode() == GamePiece.CORAL) {
-                return windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.L2, WindmillConstants.TrajectoryState.COLLECT);
+                return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.L2);
             } else {
-                return windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.LOW_DESCORE, WindmillConstants.TrajectoryState.COLLECT);
+                return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.LOW_DESCORE);
             }
         }));
         controller.x().onTrue(windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.COLLECT, WindmillConstants.TrajectoryState.STOW));

@@ -24,8 +24,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.tahomarobotics.robot.RobotConfiguration;
 import org.tahomarobotics.robot.RobotMap;
+import org.tahomarobotics.robot.collector.Collector;
 import org.tahomarobotics.robot.util.RobustConfigurator;
 import org.tahomarobotics.robot.util.SubsystemIF;
+import org.tahomarobotics.robot.util.game.GamePiece;
 import org.tahomarobotics.robot.util.signals.LoggedStatusSignal;
 import org.tahomarobotics.robot.util.sysid.SysIdTests;
 import org.tahomarobotics.robot.windmill.commands.WindmillCommands;
@@ -321,11 +323,33 @@ public class Windmill extends SubsystemIF {
         armMotor.setControl(armPositionControl.withPosition(targetAngle));
     }
 
+    public Command createSyncCollectionModeCommand() {
+        return Commands.deferredProxy(() -> {
+            if (Collector.getInstance().getCollectionMode() == GamePiece.CORAL) {
+                if (targetTrajectoryState == TrajectoryState.L3) {
+                    return createTransitionCommand(TrajectoryState.HIGH_DESCORE);
+                } else if (targetTrajectoryState == TrajectoryState.L2) {
+                    return createTransitionCommand(TrajectoryState.LOW_DESCORE);
+                }
+            } else {
+                if (targetTrajectoryState == TrajectoryState.HIGH_DESCORE) {
+                    return createTransitionCommand(TrajectoryState.L3);
+                } else if (targetTrajectoryState == TrajectoryState.LOW_DESCORE) {
+                    return createTransitionCommand(TrajectoryState.L2);
+                }
+            }
+            return Commands.none();
+        });
+    }
+
     public Command createTransitionCommand(TrajectoryState to) {
         return Commands.deferredProxy(() -> {
-            Optional<Command> output = WindmillMoveCommand.fromTo(targetTrajectoryState, to);
+            // Default to COLLECT if at target state (i.e. L4 -x> L4 -> COLLECT)
+            TrajectoryState target = targetTrajectoryState == to ? TrajectoryState.COLLECT : to;
+
+            Optional<Command> output = WindmillMoveCommand.fromTo(targetTrajectoryState, target);
             if (output.isEmpty()) {
-                Logger.error("WindmillMoveCommand from " + targetTrajectoryState + " to " + to + " failed.");
+                Logger.error("WindmillMoveCommand from " + targetTrajectoryState + " to " + target + " failed.");
             }
             return output.orElseGet(Commands::none);
         });

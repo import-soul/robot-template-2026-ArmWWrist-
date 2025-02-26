@@ -784,6 +784,7 @@ class Editor:
 
         with self.ui_plot_axis_y:
             set_plot_series_line_color(Tag(dpg.add_line_series(x, y)), "red", 127)
+            set_plot_series_line_color(Tag(dpg.add_vline_series([REEF_POLE])), "mauve", 255)
 
     def draw_robot(self):
         with self.ui_plot_axis_y:

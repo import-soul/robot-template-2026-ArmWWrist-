@@ -31,3 +31,9 @@ BUMPER_MAX_Y = 0.154 + PIVOT_TO_GROUND  # floor to top of bumpers
 ELEVATOR_X_FWD = 0.1270
 ELEVATOR_X_REV = -0.1270
 ELEVATOR_HEIGHT = 0.8255 + PIVOT_TO_GROUND
+
+REEF_POLE = BUMPER_REV - inchesToMeters(1)
+
+CORAL_WIDTH = inchesToMeters(11.875)
+CORAL_HEIGHT = inchesToMeters(4)
+CORAL_ANGLE = 5 # Degrees
