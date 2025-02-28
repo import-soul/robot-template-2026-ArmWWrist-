@@ -79,9 +79,10 @@ public class OI extends SubsystemIF {
 
         controller.povDown().onTrue(Commands.runOnce(chassis::orientToZeroHeading));
 
+        Pair<Command, Command> autoScore = GrabberCommands.createGrabberScoringCommands(Grabber.getInstance());
         controller.rightBumper().whileTrue(Commands.deferredProxy(() -> new DriveToPoseCommand(
             AutoConstants.getNearestReefPoleScorePosition(Chassis.getInstance().getPose().getTranslation())
-        )));
+        )).andThen(autoScore.getFirst()).andThen(Commands.waitSeconds(1)).andThen(autoScore.getSecond()));
 
         // Collector
 
@@ -164,10 +165,9 @@ public class OI extends SubsystemIF {
             }
         }));
         controller.x().onTrue(Commands.deferredProxy(() -> {
-            if (windmill.isAtTargetTrajectoryState())
+            if (windmill.isAtTargetTrajectoryState()) {
                 return windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.COLLECT, WindmillConstants.TrajectoryState.STOW);
-            else
-                return windmill.createResetToClosestCommand();
+            } else { return windmill.createResetToClosestCommand(); }
         }));
 
         SmartDashboard.putData(

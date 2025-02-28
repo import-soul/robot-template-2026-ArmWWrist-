@@ -10,7 +10,7 @@ public class GrabberConstants {
     public static final double EJECT_VELOCITY = 15;
     public static final double HOLD_VOLTAGE = -0.25;
 
-    public static final double COLLECTION_DELAY = 0.25;
+    public static final double COLLECTION_DELAY = 0.35;
 
     public static final double GEAR_REDUCTION;
 

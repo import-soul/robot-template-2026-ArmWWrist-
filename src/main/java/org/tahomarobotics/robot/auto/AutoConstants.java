@@ -20,19 +20,19 @@ public class AutoConstants {
     public static final double REEF_HORIZONTAL_ALIGNMENT_FUDGE = Units.inchesToMeters(4);
 
     // Translational Constraints in Meters
-    public static final TrapezoidProfile.Constraints TRANSLATION_ALIGNMENT_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 4.5);
-    public static final double TRANSLATION_ALIGNMENT_KP = 5, TRANSLATION_ALIGNMENT_KI = 0, TRANSLATION_ALIGNMENT_KD = 0;
+    public static final TrapezoidProfile.Constraints TRANSLATION_ALIGNMENT_CONSTRAINTS = new TrapezoidProfile.Constraints(2, 1);
+    public static final double TRANSLATION_ALIGNMENT_KP = 5, TRANSLATION_ALIGNMENT_KI = 0, TRANSLATION_ALIGNMENT_KD = 0.25;
     public static final double TRANSLATION_ALIGNMENT_TOLERANCE = 0.01;
 
     // Rotational Constraints in Radians
-    public static final TrapezoidProfile.Constraints ROTATION_ALIGNMENT_CONSTRAINTS = new TrapezoidProfile.Constraints(2 * Math.PI, 2 * Math.PI);
-    public static final double ROTATION_ALIGNMENT_KP = 5, ROTATION_ALIGNMENT_KI = 0, ROTATION_ALIGNMENT_KD = 0;
+    public static final TrapezoidProfile.Constraints ROTATION_ALIGNMENT_CONSTRAINTS = new TrapezoidProfile.Constraints(Math.PI, 2 * Math.PI);
+    public static final double ROTATION_ALIGNMENT_KP = 5, ROTATION_ALIGNMENT_KI = 0, ROTATION_ALIGNMENT_KD = 0.5;
     public static final double ROTATION_ALIGNMENT_TOLERANCE = Units.degreesToRadians(0.25);
 
     /** Distance between the centers of the reef poles on the same side of the reef. */
     private static final double DISTANCE_BETWEEN_REEF_POLES = Units.inchesToMeters(12.94);
     /** Perpendicular distance from the center of the reef to the center of the chassis once aligned. */
-    private static final double DISTANCE_FROM_CENTER = Units.inchesToMeters(32.75) + ChassisConstants.BUMPER_WIDTH / 2;
+    private static final double DISTANCE_FROM_CENTER = Units.inchesToMeters(32.75) + ChassisConstants.BUMPER_WIDTH / 2 + Units.inchesToMeters(1);
 
     private static final Translation2d BLUE_REEF_CENTER = new Translation2d(
         Units.inchesToMeters(144 + 93.5 / 2 - 14),
@@ -68,8 +68,9 @@ public class AutoConstants {
         Translation2d target = currentTranslation.nearest(poles);
         int index = poles.indexOf(target);
 
-        return new Pose2d(target, Rotation2d.fromDegrees(60).times(Math.floor((double) index / 2))
-                                            .plus(alliance == DriverStation.Alliance.Blue ? Rotation2d.k180deg : Rotation2d.kZero)
+        return new Pose2d(
+            target, Rotation2d.fromDegrees(60).times(Math.floor((double) index / 2))
+                              .plus(alliance == DriverStation.Alliance.Blue ? Rotation2d.k180deg : Rotation2d.kZero)
         );
     }
 

@@ -17,6 +17,8 @@ import org.tahomarobotics.robot.util.RobustConfigurator;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.util.signals.LoggedStatusSignal;
 import org.tahomarobotics.robot.util.sysid.SysIdTests;
+import org.tahomarobotics.robot.windmill.Windmill;
+import org.tahomarobotics.robot.windmill.WindmillConstants;
 
 import java.util.List;
 
@@ -100,7 +102,8 @@ public class Grabber extends SubsystemIF {
 
     private void stateMachine() {
         if (state == GrabberState.COLLECTING) {
-            if (current.getValueAsDouble() > COLLECTION_CURRENT_THRESHOLD) {
+            if (current.getValueAsDouble() > COLLECTION_CURRENT_THRESHOLD && Windmill.getInstance()
+                                                                                     .getTargetTrajectoryState() == WindmillConstants.TrajectoryState.COLLECT) {
                 collectionTimer.start();
             } else {
                 collectionTimer.stop();
@@ -144,7 +147,6 @@ public class Grabber extends SubsystemIF {
     // -- Getters --
 
     public boolean isArmAtPassing() {
-        // TODO: Check if the arm is in the collecting position
         return SmartDashboard.getBoolean("arm at position", true);
     }
 
@@ -167,7 +169,7 @@ public class Grabber extends SubsystemIF {
     public boolean isEjecting() {
         return state == GrabberState.EJECTING;
     }
-    
+
     public double getCurrent() {
         return current.getValueAsDouble();
     }
