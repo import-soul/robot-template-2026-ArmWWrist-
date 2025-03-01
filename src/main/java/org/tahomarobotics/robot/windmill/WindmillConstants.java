@@ -20,7 +20,7 @@ public class WindmillConstants {
         STOW(new Translation2d(0, 0.7)),
         L4(new Translation2d(-0.332, 1.59)),
         L3(new Translation2d(-0.369, 0.984)),
-        L2(new Translation2d(-0.373, 0.572)),
+        L2(new Translation2d(-0.35, 0.572)),
         START(new Translation2d(0, ARM_LENGTH));
 
         public final Translation2d t2d;
