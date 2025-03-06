@@ -6,11 +6,11 @@ import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import org.photonvision.simulation.SimCameraProperties;
 
 /** Constants for the {@link Vision} subsystem. */
@@ -30,8 +30,8 @@ public class VisionConstants {
     public final static CameraConfiguration ELEVATOR_SWERVE = new CameraConfiguration(
         "Elevator Swerve",
         new Transform3d(
-            new Translation3d(-0.25, 0.2971, 0.20),
-            new Rotation3d(new Quaternion(-0.08672828390630943, 0.06988593908540369, -0.01731288468135895, 0.9936269039799738))
+            new Translation3d(Units.inchesToMeters(-9.070), Units.inchesToMeters(10.573), Units.inchesToMeters(7.555)),
+            new Rotation3d(Units.degreesToRadians(-2.293), Units.degreesToRadians(-7.377), Units.degreesToRadians(-163.829))
         ),
         StandardDeviationScaling.DEFAULT
     );
@@ -39,8 +39,8 @@ public class VisionConstants {
     public final static CameraConfiguration CLIMBER_SWERVE = new CameraConfiguration(
         "Climber Swerve",
         new Transform3d(
-            new Translation3d(-0.25, -0.2971, 0.20),
-            new Rotation3d(new Quaternion(0.17379550957598747, 0.07964208982705674, 0.019307103639845842, 0.9813661366321145))
+            new Translation3d(Units.inchesToMeters(-9.43), Units.inchesToMeters(-12.801), Units.inchesToMeters(8.115)),
+            new Rotation3d(Units.degreesToRadians(3.19), Units.degreesToRadians(-10.819), Units.degreesToRadians(162.719))
         ),
         StandardDeviationScaling.DEFAULT
     );

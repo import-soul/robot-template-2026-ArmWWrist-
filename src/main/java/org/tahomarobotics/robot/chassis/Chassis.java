@@ -65,7 +65,7 @@ public class Chassis extends SubsystemIF {
     @AutoLogOutput(key = "Chassis/Auto Aligning?")
     private boolean autoAligning = false;
     @AutoLogOutput(key = "Chassis/Auto Alignment Offset")
-    private double autoAligningOffset = 1;
+    private double autoAligningOffset = 0;
 
     // State
 

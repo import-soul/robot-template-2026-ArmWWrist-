@@ -18,12 +18,12 @@ import java.util.stream.IntStream;
 public class AutonomousConstants {
     /** A horizontal shift on the robot's position relative to reef poles. */
     public static final double DEFAULT_REEF_HORIZONTAL_ALIGNMENT_FUDGE = Units.inchesToMeters(0);
-    public static final double FUDGE_INCREMENT = 0.5; // Inches
+    public static final double FUDGE_INCREMENT = 0.25; // Inches
 
     // Translational Constraints in Meters
-    public static final TrapezoidProfile.Constraints TRANSLATION_ALIGNMENT_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 3);
+    public static final TrapezoidProfile.Constraints TRANSLATION_ALIGNMENT_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 4.5);
     public static final double TRANSLATION_ALIGNMENT_KP = 5, TRANSLATION_ALIGNMENT_KI = 0, TRANSLATION_ALIGNMENT_KD = 0.25;
-    public static final double TRANSLATION_ALIGNMENT_TOLERANCE = 0.01;
+    public static final double TRANSLATION_ALIGNMENT_TOLERANCE = 0.025;
 
     // Rotational Constraints in Radians
     public static final TrapezoidProfile.Constraints ROTATION_ALIGNMENT_CONSTRAINTS = new TrapezoidProfile.Constraints(2 * Math.PI, 2 * Math.PI);
@@ -33,7 +33,7 @@ public class AutonomousConstants {
     /** Distance between the centers of the reef poles on the same side of the reef. */
     private static final double DISTANCE_BETWEEN_REEF_POLES = Units.inchesToMeters(12.94);
     /** Perpendicular distance from the center of the reef to the center of the chassis once aligned. */
-    private static final double SCORE_DISTANCE_FROM_CENTER = Units.inchesToMeters(32.75) + ChassisConstants.BUMPER_WIDTH / 2 + Units.inchesToMeters(1);
+    private static final double SCORE_DISTANCE_FROM_CENTER = Units.inchesToMeters(32.75) + ChassisConstants.BUMPER_WIDTH / 2 + Units.inchesToMeters(0.75);
     private static final double APPROACH_DISTANCE_FROM_CENTER = SCORE_DISTANCE_FROM_CENTER + Units.inchesToMeters(12);
     public static final double APPROACH_DISTANCE_BLEND_FACTOR = Units.inchesToMeters(12);
 
@@ -108,6 +108,6 @@ public class AutonomousConstants {
             return side < 5 ? 7 + side : 6;
         }
     }
-    
+
     public record ReefPole(int index, int aprilTagId, Pose2d approachPose, Pose2d scorePose) {}
 }

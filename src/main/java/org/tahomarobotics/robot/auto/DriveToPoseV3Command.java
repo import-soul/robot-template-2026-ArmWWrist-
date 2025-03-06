@@ -4,7 +4,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.tahomarobotics.robot.chassis.Chassis;
@@ -110,6 +109,6 @@ public class DriveToPoseV3Command extends Command {
     private void syncGoal() {
         x.setGoal(goalPose.getX());
         y.setGoal(goalPose.getY());
-        r.setGoal(goalPose.getRotation().getRadians() + Units.degreesToRadians(4.5));
+        r.setGoal(goalPose.getRotation().getRadians());
     }
 }

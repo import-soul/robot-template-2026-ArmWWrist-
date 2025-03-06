@@ -22,7 +22,7 @@ public class CameraMountEstimation {
 
         // Initialize all of our inputs on SmartDashboard
         SmartDashboard.putData(
-            "Estimate Camera Positions", Commands.runOnce(() -> estimate.replaceAll((n, v) -> true))
+            "Estimate Camera Positions", Commands.runOnce(() -> estimate.replaceAll((n, v) -> true)).ignoringDisable(true)
         );
 
         SmartDashboard.putNumber("Actual Chassis Pose X (Meters)", 0);
