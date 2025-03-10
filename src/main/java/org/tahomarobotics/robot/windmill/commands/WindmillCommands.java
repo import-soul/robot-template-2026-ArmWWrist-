@@ -70,7 +70,7 @@ public class WindmillCommands {
             timer.stop();
         }, () -> !windmill.isElevatorMoving() && timer.hasElapsed(WindmillConstants.ELEVATOR_ZEROING_TIMEOUT), windmill)
             .andThen(
-                windmill.createResetToClosestCommand()
+                windmill.createResetToPreviousState()
             );
     }
 }

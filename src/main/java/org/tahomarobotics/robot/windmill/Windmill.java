@@ -72,7 +72,7 @@ public class Windmill extends SubsystemIF {
     private double targetHeight;
     private double targetAngle;
     private WindmillState targetState = WindmillState.fromPrevious(0, 0, 0, null);
-    private TrajectoryState targetTrajectoryState = TrajectoryState.START;
+    private TrajectoryState targetTrajectoryState = TrajectoryState.STOW;
 
     @AutoLogOutput(key = "Windmill/Is Zeroed?")
     private boolean zeroed = false;
@@ -384,34 +384,17 @@ public class Windmill extends SubsystemIF {
         });
     }
 
-    public Command createResetToClosestCommand() {
+    public Command createResetToPreviousState() {
         return Commands.runOnce(
             () -> {
-                double angle = MathUtil.inputModulus(getArmPosition(), 0, 1);
-                Logger.info("Starting arm angle: {} rotations", angle);
-                if (angle > 0.5 && angle < 0.85) {
-                    WindmillState collectState;
-                    try {
-                        collectState = WindmillKinematics.inverseKinematics(0, TrajectoryState.COLLECT.t2d, null, false);
-                    } catch (WindmillKinematics.KinematicsException e) {
-                        Logger.error("Cannot go to collect! This is a bug: {}", e);
-                        return;
-                    }
-                    setState(collectState);
-                    setTargetState(TrajectoryState.COLLECT);
-                } else {
-                    WindmillState stowState;
-                    try {
-                        stowState = WindmillKinematics.inverseKinematics(0, TrajectoryState.STOW.t2d, null);
-                    } catch (WindmillKinematics.KinematicsException e) {
-                        Logger.error("Cannot go to stow! This is a bug: {}", e);
-                        return;
-                    }
-                    setState(stowState);
-                    setTargetState(TrajectoryState.STOW);
+                try {
+                    Logger.info("Windmill attempting to go to " + targetTrajectoryState);
+                    setState(WindmillKinematics.inverseKinematics(0, targetTrajectoryState.t2d, null));
+                } catch (WindmillKinematics.KinematicsException e) {
+                    Logger.error("Windmill could not go back to " + targetTrajectoryState + ": " + e);
                 }
             }, this
-        ).withName("Windmill - Reset to Closest");
+        ).withName("Windmill - Reset to Target State");
     }
 
     public void stopElevator() {
@@ -435,7 +418,7 @@ public class Windmill extends SubsystemIF {
     @Override
     public void onTeleopInit() {
         Commands.waitUntil(() -> zeroed)
-                .andThen(createResetToClosestCommand()).schedule();
+                .andThen(createResetToPreviousState()).schedule();
     }
 
     @Override

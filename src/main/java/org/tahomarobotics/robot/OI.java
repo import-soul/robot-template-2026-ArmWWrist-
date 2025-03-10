@@ -165,7 +165,7 @@ public class OI extends SubsystemIF {
         controller.x().onTrue(Commands.deferredProxy(() -> {
             if (windmill.isAtTargetTrajectoryState()) {
                 return windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.COLLECT, WindmillConstants.TrajectoryState.STOW);
-            } else { return windmill.createResetToClosestCommand(); }
+            } else { return windmill.createResetToPreviousState(); }
         }));
 
         lessImportantController.x().onTrue(
