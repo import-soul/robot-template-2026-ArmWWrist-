@@ -178,9 +178,11 @@ public class Windmill extends SubsystemIF {
         SmartDashboard.putData("Zero Windmill (Moving)", WindmillCommands.createElevatorZeroCommand(this));
         SmartDashboard.putData("Calibrate Windmill", WindmillCommands.createCalibrateCommand(this));
 
-        // Calibrate on first enable
-        new Trigger(RobotState::isEnabled).onTrue(Commands.runOnce(this::calibrate).onlyIf(() -> !zeroed));
-        new Trigger(RobotState::isEnabled).onTrue(Commands.runOnce(this::calibrate).onlyIf(() -> !zeroed));
+        // Calibrate on first auto enable
+        new Trigger(RobotState::isEnabled).onTrue(Commands.runOnce(this::calibrate).onlyIf(() -> !zeroed && RobotState.isAutonomous()).andThen(this::calibrate));
+
+        // Zero elevator on first enable
+        new Trigger(RobotState::isEnabled).onTrue(WindmillCommands.createElevatorZeroCommand(this).onlyIf(() -> !zeroed));
 
         // Calibrate with user button
         new Trigger(RobotController::getUserButton).onTrue(WindmillCommands.createUserButtonCalibrateCommand(this));
