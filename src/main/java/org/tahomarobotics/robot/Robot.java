@@ -56,6 +56,7 @@ public class Robot extends LoggedRobot {
     // Subsystems
 
     private final List<SubsystemIF> subsystems = List.of(
+        LED.getInstance().initialize(),
         Chassis.getInstance().initialize(),
         Autonomous.getInstance().initialize(),
         Vision.getInstance().initialize(),
@@ -64,7 +65,6 @@ public class Robot extends LoggedRobot {
         Collector.getInstance().initialize(),
         Climber.getInstance().initialize(),
         Grabber.getInstance().initialize(),
-        LED.getInstance().initialize(),
         OI.getInstance().initialize()
     );
 

@@ -44,6 +44,7 @@ public class WindmillTrajectories {
 
     static {
         WindmillState collectLift = createWindmillState(Units.inchesToMeters(25), Units.degreesToRadians(267.809));
+
         // Algae
         create(TrajectoryState.COLLECT, TrajectoryState.HIGH_DESCORE, new WindmillState[]{collectLift});
         create(TrajectoryState.COLLECT, TrajectoryState.LOW_DESCORE, new WindmillState[]{collectLift});
@@ -59,6 +60,13 @@ public class WindmillTrajectories {
         create(TrajectoryState.L3, STANDARD_PULLBACK, TrajectoryState.LOW_DESCORE);
         create(TrajectoryState.L4, LARGE_PULLBACK, TrajectoryState.HIGH_DESCORE);
         create(TrajectoryState.L4, LARGE_PULLBACK, TrajectoryState.LOW_DESCORE);
+
+        create(TrajectoryState.HIGH_DESCORE, SMALL_PULLBACK, TrajectoryState.L2);
+        create(TrajectoryState.LOW_DESCORE, TrajectoryState.L2);
+        create(TrajectoryState.HIGH_DESCORE, TrajectoryState.L3);
+        create(TrajectoryState.LOW_DESCORE, STANDARD_PULLBACK, TrajectoryState.L3);
+        create(TrajectoryState.HIGH_DESCORE, LARGE_PULLBACK, TrajectoryState.L4);
+        create(TrajectoryState.LOW_DESCORE, LARGE_PULLBACK, TrajectoryState.L4);
 
         // Coral
         create(TrajectoryState.COLLECT, TrajectoryState.L2, new WindmillState[]{collectLift});

@@ -492,8 +492,6 @@ public class Windmill extends SubsystemIF {
                 prevAngle = armAngle;
                 elevator.setLength(ELEV_OFFSET + evelHeight);
                 arm.setAngle(Units.radiansToDegrees(armAngle) - 90);
-
-                Logger.info(String.format("Windmill; %7.2f %7.2f", Units.metersToInches(evelHeight), Units.radiansToDegrees(armAngle)));
             }
         }
     }

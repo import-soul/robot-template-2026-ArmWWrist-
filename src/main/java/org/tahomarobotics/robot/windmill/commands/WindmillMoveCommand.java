@@ -140,6 +140,11 @@ public class WindmillMoveCommand extends Command {
     }
 
     @Override
+    public InterruptionBehavior getInterruptionBehavior() {
+        return InterruptionBehavior.kCancelIncoming;
+    }
+
+    @Override
     public String getName() {
         return "Windmill Move Command";
     }

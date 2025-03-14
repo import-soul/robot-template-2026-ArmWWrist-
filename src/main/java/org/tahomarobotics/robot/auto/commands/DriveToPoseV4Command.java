@@ -27,7 +27,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.tahomarobotics.robot.chassis.Chassis;
@@ -55,14 +54,8 @@ public class DriveToPoseV4Command extends Command {
     private final int isolationTarget;
     private final double blendingDistance;
 
-    private double distanceToGoalPose = Double.POSITIVE_INFINITY;
-
     private int targetWaypoint = 0;
     private final List<Pose2d> waypoints;
-
-    // -- Timer --
-    private final Timer timer = new Timer();
-    private double endTime = Double.POSITIVE_INFINITY;
 
     // -- Initialization --
 
@@ -117,7 +110,7 @@ public class DriveToPoseV4Command extends Command {
     public void execute() {
         Pose2d currentPose = chassis.getPose();
 
-        distanceToGoalPose = currentPose.getTranslation().getDistance(waypoints.get(targetWaypoint).getTranslation());
+        double distanceToGoalPose = getDistanceToWaypoint();
         if (distanceToGoalPose < blendingDistance && targetWaypoint < waypoints.size() - 1) {
             targetWaypoint++;
             syncGoal();
@@ -144,8 +137,7 @@ public class DriveToPoseV4Command extends Command {
         Translation2d robotToTarget = chassis.getPose().getTranslation().minus(waypoints.get(targetWaypoint).getTranslation());
         return (Math.abs(robotToTarget.getX()) < X_TOLERANCE
                 && Math.abs(robotToTarget.getY()) < Y_TOLERANCE
-                && r.atGoal())
-               || timer.hasElapsed(endTime);
+                && r.atGoal());
     }
 
     @Override

@@ -34,11 +34,11 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.tahomarobotics.robot.RobotConfiguration;
 import org.tahomarobotics.robot.RobotMap;
+import org.tahomarobotics.robot.lights.LED;
 import org.tahomarobotics.robot.util.RobustConfigurator;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.util.game.GamePiece;
@@ -132,8 +132,6 @@ public class Collector extends SubsystemIF {
 
         LoggedStatusSignal.setUpdateFrequencyForAll(statusSignals, RobotConfiguration.MECHANISM_UPDATE_FREQUENCY);
         ParentDevice.optimizeBusUtilizationForAll(leftMotor, rightMotor, collectorMotor);
-
-        setCollectionMode(GamePiece.CORAL);
     }
 
     public static Collector getInstance() {
@@ -363,7 +361,8 @@ public class Collector extends SubsystemIF {
 
     public void setCollectionMode(GamePiece collectionMode) {
         this.collectionMode = collectionMode;
-        SmartDashboard.putString("CollectionMode", collectionMode.name() );
+        LED.getInstance().sync();
+
         syncDeploymentControl();
     }
 

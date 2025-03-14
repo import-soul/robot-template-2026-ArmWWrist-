@@ -24,22 +24,20 @@ package org.tahomarobotics.robot.lights;
 
 import com.ctre.phoenix.CANifier;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.util.Color;
 import org.tahomarobotics.robot.RobotMap;
 import org.tahomarobotics.robot.collector.Collector;
 import org.tahomarobotics.robot.util.SubsystemIF;
+import org.tahomarobotics.robot.util.game.GamePiece;
 
-/*
-LED Channels
- - A = green
- - B = red
- - C = blue
- */
 public class LED extends SubsystemIF {
     private static final LED INSTANCE = new LED();
 
+    // -- Devices --
+
     private CANifier canifier = null;
+
+    // -- Initialization --
 
     private LED() {
         if (RobotBase.isSimulation()) {
@@ -59,28 +57,37 @@ public class LED extends SubsystemIF {
         return INSTANCE;
     }
 
-    public void updateLEDColor() {
-        if (RobotState.isEnabled()) {
-            switch (Collector.getInstance().getCollectionMode()) {
-                case ALGAE -> setColor(new Color(0, 1, 0.25));
-                case CORAL -> setColor(Color.kWhite);
-                default -> setColor(Color.kGold);
-            }
-        } else {
-            setColor(Color.kGold);
-        }
-    }
+    // -- COLORS --
 
     public void setColor(Color color) {
         if (canifier == null) { return; }
 
+        // LED Channels
+        //   - A = green
+        //   - B = red
+        //   - C = blue
         canifier.setLEDOutput(color.red, CANifier.LEDChannel.LEDChannelB);
         canifier.setLEDOutput(color.green, CANifier.LEDChannel.LEDChannelA);
         canifier.setLEDOutput(color.blue, CANifier.LEDChannel.LEDChannelC);
     }
 
-    @Override
-    public void periodic() {
-        updateLEDColor();
+    public void coral() {
+        setColor(Color.kCoral);
+    }
+
+    public void algae() {
+        setColor(new Color(0x55, 0xF5, 0xDB));
+    }
+
+    public void sync() {
+        if (Collector.getInstance().getCollectionMode() == GamePiece.CORAL) {
+            coral();
+        } else {
+            algae();
+        }
+    }
+
+    public void l4() {
+        setColor(Color.kRed);
     }
 }

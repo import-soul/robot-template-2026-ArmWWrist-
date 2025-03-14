@@ -202,7 +202,7 @@ public class WindmillConstants {
                 .withMotionMagicJerk(Units.radiansToRotations(ARM_MAX_JERK))
         ).withClosedLoopGeneral(
             new ClosedLoopGeneralConfigs()
-                .withContinuousWrap(true)
+                .withContinuousWrap(false)
         ).withFeedback(new FeedbackConfigs()
                            .withSensorToMechanismRatio(1 / ARM_BELT_REDUCTION)
                            .withRotorToSensorRatio(1 / ARM_ROTOR_TO_ENCODER)
