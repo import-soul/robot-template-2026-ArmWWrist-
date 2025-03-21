@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.tahomarobotics.robot.auto.autos.FivePiece;
 import org.tahomarobotics.robot.auto.autos.Strait;
+import org.tahomarobotics.robot.chassis.Chassis;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tinylog.Logger;
 
@@ -67,9 +68,7 @@ public class Autonomous extends SubsystemIF {
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
-        autoChooser.onChange(command -> {
-            Logger.info("Selected auto: " + command.getName());
-        });
+        autoChooser.onChange(this::onAutoChange);
     }
 
     public static Autonomous getInstance() {
@@ -78,5 +77,19 @@ public class Autonomous extends SubsystemIF {
 
     public Command getSelectedAuto() {
         return autoChooser.getSelected();
+    }
+
+    public void onAutoChange(Command command) {
+        Chassis chassis = Chassis.getInstance();
+        DriverStation.Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Red);
+        Pose2d startingPose = switch(command.getName()) {
+            case "5-Piece Left" -> (alliance == DriverStation.Alliance.Red) ? AutonomousConstants.FIVE_PIECE_LEFT_RED_START : AutonomousConstants.FIVE_PIECE_LEFT_BLUE_START;
+            case "5-Piece Right" -> (alliance == DriverStation.Alliance.Red) ? AutonomousConstants.FIVE_PIECE_RIGHT_RED_START : AutonomousConstants.FIVE_PIECE_RIGHT_BLUE_START;
+            case "Strait" -> (alliance == DriverStation.Alliance.Red) ? AutonomousConstants.STRAIGHT_RED_START : AutonomousConstants.STRAIGHT_BLUE_START;
+            default -> chassis.getPose();
+        };
+
+        chassis.resetOdometry(startingPose);
+        Logger.info("Selected auto: " + command.getName());
     }
 }

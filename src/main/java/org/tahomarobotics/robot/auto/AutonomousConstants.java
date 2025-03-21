@@ -75,6 +75,13 @@ public class AutonomousConstants {
         VisionConstants.FIELD_LAYOUT.getFieldWidth() / 2
     );
 
+    public static final Pose2d FIVE_PIECE_LEFT_BLUE_START = new Pose2d(new Translation2d(7, 6), Rotation2d.fromDegrees(225 + 180));
+    public static final Pose2d FIVE_PIECE_LEFT_RED_START = new Pose2d(new Translation2d(10.56, 1.9), Rotation2d.fromDegrees(225));
+    public static final Pose2d FIVE_PIECE_RIGHT_BLUE_START = new Pose2d(new Translation2d(7, 1.9), Rotation2d.fromDegrees(135 + 180));
+    public static final Pose2d FIVE_PIECE_RIGHT_RED_START = new Pose2d(new Translation2d(10.56, 6), Rotation2d.fromDegrees(135));
+    public static final Pose2d STRAIGHT_BLUE_START = new Pose2d(new Translation2d(7.1, 4), Rotation2d.fromDegrees(0));
+    public static final Pose2d STRAIGHT_RED_START = new Pose2d(new Translation2d(10.4, 4), Rotation2d.fromDegrees(180));
+
     private static Translation2d RED_CORAL_STATION_RIGHT_TARGET, RED_CORAL_STATION_LEFT_TARGET, BLUE_CORAL_STATION_RIGHT_TARGET, BLUE_CORAL_STATION_LEFT_TARGET;
 
     public static List<Translation2d> RED_REEF_APPROACH_POLES;
