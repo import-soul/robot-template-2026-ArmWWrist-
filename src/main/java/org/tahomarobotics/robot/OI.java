@@ -283,7 +283,7 @@ public class OI extends SubsystemIF {
                         return windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.CORAL_COLLECT, WindmillConstants.TrajectoryState.L1);
                     } else {
                         return Commands.runOnce(() -> collector.deploymentForceStateTransition(CollectorConstants.TargetDeploymentState.CORAL_COLLECT))
-                                       .andThen(windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.STOW, WindmillConstants.TrajectoryState.ALGAE_PROCESSOR));
+                                       .andThen(WindmillCommands.createToggleProcessorCommand(windmill));
                     }
                 },
             Set.of(windmill))

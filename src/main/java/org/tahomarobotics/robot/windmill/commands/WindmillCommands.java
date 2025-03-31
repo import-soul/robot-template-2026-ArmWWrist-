@@ -179,6 +179,13 @@ public class WindmillCommands {
         }
     }
 
+    public static Command createToggleProcessorCommand(Windmill windmill) {
+        return windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.ALGAE_PROCESSOR ?
+            Commands.runOnce(() -> collector.setCollectionMode(GamePiece.CORAL))
+                    .andThen(windmill.createTransitionCommand(WindmillConstants.TrajectoryState.CORAL_COLLECT)) :
+            windmill.createTransitionCommand(WindmillConstants.TrajectoryState.ALGAE_PROCESSOR);
+    }
+
     public static Command createAlgaePassoffCommand(Windmill windmill) {
         return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.ALGAE_PASSOFF)
                        .andThen(CollectorCommands.createEjectCommands(collector).getFirst()

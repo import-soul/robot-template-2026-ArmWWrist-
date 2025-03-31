@@ -78,6 +78,10 @@ public final class WindmillConstants {
                 new WindmillState.ArmState(arm, 0, 0)
             );
         }
+
+        public boolean collectsAlgae() {
+            return this == ALGAE_COLLECT || this == HIGH_DESCORE || this == LOW_DESCORE;
+        }
     }
 
     public static final double SMALL_PULLBACK = Units.degreesToRadians(10.0);
@@ -131,6 +135,7 @@ public final class WindmillConstants {
     public static final double ARM_MAX_JERK = 416.5 * Math.PI;  // Radians / sec^3
 
     public static final double ARM_ALGAE_ACCELERATION_REDUCTION = ARM_MAX_ACCELERATION / 1.4;
+    public static final double ARM_ALGAE_THROW_ACCELERATION_REDUCTION = ARM_MAX_ACCELERATION / 3;
 
     // Constants
 
