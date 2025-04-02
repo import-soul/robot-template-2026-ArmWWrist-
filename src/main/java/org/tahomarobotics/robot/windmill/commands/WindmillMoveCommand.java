@@ -82,6 +82,8 @@ public class WindmillMoveCommand extends Command {
 
         windmill.setTargetState(fromTo.getSecond());
 
+        if(fromTo.getSecond() != TrajectoryState.STOW) windmill.setWillMoveToL4OnAutoAlign(false);
+
         Logger.info("Running trajectory: '{}' ({} seconds)", trajectory.name, trajectory.getTotalTimeSeconds());
         timer.restart();
     }

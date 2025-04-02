@@ -49,12 +49,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.photonvision.proto.Photon;
 import org.tahomarobotics.robot.Robot;
 import org.tahomarobotics.robot.RobotConfiguration;
 import org.tahomarobotics.robot.RobotMap;
 import org.tahomarobotics.robot.collector.Collector;
 import org.tahomarobotics.robot.grabber.Grabber;
 import org.tahomarobotics.robot.grabber.GrabberConstants;
+import org.tahomarobotics.robot.lights.LED;
 import org.tahomarobotics.robot.util.RobustConfigurator;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.util.game.GamePiece;
@@ -113,6 +115,12 @@ public class Windmill extends SubsystemIF {
 
     @AutoLogOutput(key = "Windmill/Is Zeroed?")
     private boolean zeroed = false;
+
+    @AutoLogOutput(key = "Windmill/Will Move to L4 on Auto Align?")
+    private boolean willMoveToL4OnAutoAlign = false;
+
+    @AutoLogOutput(key = "Windmill/Will Descore Algae Automatically?")
+    private boolean willDescore = false;
 
     // Trajectory
 
@@ -268,6 +276,14 @@ public class Windmill extends SubsystemIF {
         return isRunningTrajectory;
     }
 
+    public boolean willMoveToL4OnAutoAlign() {
+        return willMoveToL4OnAutoAlign;
+    }
+
+    public boolean willDescore() {
+        return willDescore;
+    }
+
     // Elevator
 
     @AutoLogOutput(key = "Windmill/Elevator/Height")
@@ -358,6 +374,7 @@ public class Windmill extends SubsystemIF {
 
     public void setTargetState(TrajectoryState targetState) {
         this.targetTrajectoryState = targetState;
+
         if (targetTrajectoryState == TrajectoryState.CORAL_COLLECT && Grabber.getInstance().getState() == GrabberConstants.GrabberState.L1_SCORING) {
             Grabber.getInstance().setTargetState(GrabberConstants.GrabberState.CORAL_COLLECTING);
         }
@@ -427,6 +444,15 @@ public class Windmill extends SubsystemIF {
 
     public void setIsRunningTrajectory(boolean isRunningTrajectory) {
         this.isRunningTrajectory = isRunningTrajectory;
+    }
+
+    public void setWillMoveToL4OnAutoAlign(boolean willMoveToL4OnAutoAlign) {
+        this.willMoveToL4OnAutoAlign = willMoveToL4OnAutoAlign;
+        LED.getInstance().sync();
+    }
+
+    public void setWillDescore(boolean willDescore) {
+        this.willDescore = willDescore;
     }
 
     public Command createSyncCollectionModeCommand() {

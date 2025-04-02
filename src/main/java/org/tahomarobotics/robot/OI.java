@@ -27,6 +27,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.tahomarobotics.robot.auto.AutonomousConstants;
+import org.tahomarobotics.robot.auto.commands.DriveToPoseV4Command;
 import org.tahomarobotics.robot.auto.commands.DriveToPoseV5Command;
 import org.tahomarobotics.robot.chassis.Chassis;
 import org.tahomarobotics.robot.chassis.ChassisCommands;
@@ -54,6 +56,7 @@ import org.tahomarobotics.robot.vision.Vision;
 import org.tahomarobotics.robot.windmill.Windmill;
 import org.tahomarobotics.robot.windmill.WindmillConstants;
 import org.tahomarobotics.robot.windmill.commands.WindmillCommands;
+import org.tahomarobotics.robot.windmill.commands.WindmillMoveCommand;
 import org.tinylog.Logger;
 
 import java.util.List;
@@ -71,8 +74,10 @@ public class OI extends SubsystemIF {
     private static final double DEADBAND = 0.09;
     private static final double TRIGGER_DEADBAND = 0.05;
 
-    private static final double DOUBLE_PRESS_TIMEOUT = 0.35;
-    private static final double ARM_UP_DISTANCE = AutonomousConstants.APPROACH_DISTANCE_BLEND_FACTOR + Units.inchesToMeters(6);
+    private static final double STOW_TO_L4_DISTANCE = AutonomousConstants.APPROACH_DISTANCE_BLEND_FACTOR + Units.inchesToMeters(6);
+    private static final double DOUBLE_PRESS_TIME = 0.350;
+
+    private final Timer doublePressTimer = new Timer();
 
     // -- Subsystems --
 
@@ -93,6 +98,7 @@ public class OI extends SubsystemIF {
     // -- Initialization --
 
     private OI() {
+        doublePressTimer.start();
 
         subsystems = RobotConfiguration.isClimberEnabled() ?
             List.of(indexer, collector, chassis, windmill, grabber, led, Climber.getInstance()) :
@@ -153,14 +159,15 @@ public class OI extends SubsystemIF {
                             AutonomousConstants.Objective pole =
                                 AutonomousConstants.getObjectiveForPole(nearestIndex, AutonomousConstants.getAlliance())
                                     .fudgeY(0);
-                            var dtp = pole.driveToPoseV4Command();
+                            var dtp = new DriveToPoseV4Command(pole.tag(), AutonomousConstants.APPROACH_DISTANCE_BLEND_FACTOR, pole.scorePose());
 
                             boolean isHighAlgae = (nearestIndex / 2) % 2 == 0;
 
                             Command scoreToDescore = Commands.none();
                             if ((windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.L4
                                  || windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.L3
-                                 || windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.L2)) {
+                                 || windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.L2)
+                                 || windmill.willDescore()) {
                                 if (isHighAlgae) {
                                     scoreToDescore = WindmillCommands.createScoreToHighAlgaeDescoreCommand(windmill);
                                 } else {
@@ -168,16 +175,17 @@ public class OI extends SubsystemIF {
                                 }
                             }
 
+                            Command stowToL4 = Commands.deferredProxy(() -> WindmillMoveCommand.fromTo(WindmillConstants.TrajectoryState.STOW, WindmillConstants.TrajectoryState.L4).orElse(Commands.runOnce(() -> Logger.error("Could not create automatic STOW to L4."))));
+
                             return Commands.parallel(
                                 dtp.andThen(Commands.waitSeconds(0.75)).finallyDo(grabber::transitionToDisabled),
+                                dtp.runWhen(() -> dtp.getTargetWaypoint() == 0 && dtp.getDistanceToWaypoint() < STOW_TO_L4_DISTANCE,
+                                            stowToL4).onlyIf(() -> windmill.willMoveToL4OnAutoAlign() && windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.STOW),
                                 dtp.runWhen(
                                     () -> dtp.getDistanceToWaypoint() < AutonomousConstants.AUTO_SCORE_DISTANCE,
-                                    grabber.runOnce(grabber::transitionToScoring)
+                                    Commands.waitUntil(() -> windmill.isAtTargetTrajectoryState() && windmill.getTargetTrajectoryState().shouldAutoScore()).andThen(grabber.runOnce(grabber::transitionToScoring))
                                 )
-                            ).andThen(scoreToDescore.onlyIf(() -> (controller.y().getAsBoolean() || controller.b().getAsBoolean() || controller.a().getAsBoolean())
-                                                                  && (windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.L4
-                                                                      || windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.L3
-                                                                      || windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.L2)));
+                            ).andThen(scoreToDescore.onlyIf(windmill::willDescore));
                         }
                     )
                     .onlyIf(() -> collector.getCollectionMode() == GamePiece.CORAL)
@@ -285,7 +293,20 @@ public class OI extends SubsystemIF {
         controller.y().onTrue(Commands.deferredProxy(
             () -> {
                 if (collector.getCollectionMode().equals(GamePiece.CORAL)) {
-                    return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.L4);
+                    if (!doublePressTimer.hasElapsed(DOUBLE_PRESS_TIME)) {
+                        return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.L4);
+                    } else {
+                        doublePressTimer.restart();
+                        return Commands.runOnce(() -> {
+                            windmill.setWillMoveToL4OnAutoAlign(!windmill.willMoveToL4OnAutoAlign());
+                        }).andThen(Commands.defer(() -> {
+                            if (windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.L4) {
+                                return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.CORAL_COLLECT);
+                            } else {
+                                return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.STOW).onlyIf(() -> windmill.getTargetTrajectoryState() != WindmillConstants.TrajectoryState.STOW);
+                            }
+                        }, Set.of(windmill)));
+                    }
                 } else {
                     if (windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.ALGAE_PRESCORE) {
                         return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.STOW);
@@ -294,6 +315,10 @@ public class OI extends SubsystemIF {
                 }
             }
         ));
+
+        controller.y().onTrue(Commands.runOnce(() -> windmill.setWillDescore(true))).onFalse(Commands.runOnce(() -> windmill.setWillDescore(false)));
+        controller.b().onTrue(Commands.runOnce(() -> windmill.setWillDescore(true))).onFalse(Commands.runOnce(() -> windmill.setWillDescore(false)));
+        controller.a().onTrue(Commands.runOnce(() -> windmill.setWillDescore(true))).onFalse(Commands.runOnce(() -> windmill.setWillDescore(false)));
     }
 
     public void configureLessImportantControllerBindings() {

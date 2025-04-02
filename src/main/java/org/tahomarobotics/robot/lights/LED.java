@@ -30,6 +30,7 @@ import org.tahomarobotics.robot.RobotMap;
 import org.tahomarobotics.robot.collector.Collector;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.util.game.GamePiece;
+import org.tahomarobotics.robot.windmill.Windmill;
 
 // TODO: Fix so that changing collection mode while climbing or ready for l4 doesnt override those lights.
 public class LED extends SubsystemIF {
@@ -53,6 +54,16 @@ public class LED extends SubsystemIF {
     public SubsystemIF initialize() {
         disable();
         return this;
+    }
+
+    @Override
+    public void onTeleopInit() {
+        sync();
+    }
+
+    @Override
+    public void onDisabledInit() {
+        disable();
     }
 
     public static LED getInstance() {
@@ -92,7 +103,11 @@ public class LED extends SubsystemIF {
         }
 
         if (Collector.getInstance().getCollectionMode() == GamePiece.CORAL) {
-            coral();
+            if (Windmill.getInstance().willMoveToL4OnAutoAlign()) {
+                l4();
+            } else {
+                coral();
+            }
         } else {
             algae();
         }
@@ -103,6 +118,6 @@ public class LED extends SubsystemIF {
     }
 
     public void climb() {
-        setColor(Color.kGreen);
+        setColor(Color.kNavy);
     }
 }

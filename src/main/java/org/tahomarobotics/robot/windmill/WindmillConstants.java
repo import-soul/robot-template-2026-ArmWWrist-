@@ -82,6 +82,10 @@ public final class WindmillConstants {
         public boolean collectsAlgae() {
             return this == ALGAE_COLLECT || this == HIGH_DESCORE || this == LOW_DESCORE;
         }
+
+        public boolean shouldAutoScore() {
+            return this == L2 || this == L3 || this == L4;
+        }
     }
 
     public static final double SMALL_PULLBACK = Units.degreesToRadians(10.0);
