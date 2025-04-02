@@ -39,6 +39,7 @@ public class RobotConfiguration {
     public static final boolean FEATURE_CORAL_DETECTION = true;
     public static final boolean FEATURE_ALGAE_END_EFFECTOR = true;
     public static final boolean FEATURE_BEAN_BAKE = true;
+    public static final boolean FEATURE_LIMIT_SWITCH = true;
 
     // -- Deploy Directory --
     public static final File DEPLOY_DIR = Filesystem.getDeployDirectory();

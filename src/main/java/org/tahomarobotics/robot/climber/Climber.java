@@ -67,8 +67,6 @@ public class Climber extends SubsystemIF {
 
     private final DigitalInput limitSwitch = new DigitalInput(RobotMap.CLIMBER_LIMIT_SWITCH);
 
-    private final boolean USE_LIMIT_SWITCH = false;
-
     // Status Signals
 
     private final LoggedStatusSignal[] statusSignals;
@@ -134,8 +132,8 @@ public class Climber extends SubsystemIF {
             );
 
         // Climb on limit switch
-        new Trigger(() -> USE_LIMIT_SWITCH && isLimitSwitchPressed() && RobotState.isTeleop() && climbState == ClimberState.DEPLOYED)
-            .onTrue(Commands.waitSeconds(0.5).andThen(
+        new Trigger(() -> RobotConfiguration.FEATURE_LIMIT_SWITCH && isLimitSwitchPressed() && RobotState.isTeleop() && climbState == ClimberState.DEPLOYED)
+            .onTrue(Commands.waitSeconds(0.1).andThen(
                 ClimberCommands.getClimberCommand()
             ));
 
