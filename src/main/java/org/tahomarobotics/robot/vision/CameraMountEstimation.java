@@ -43,8 +43,8 @@ public class CameraMountEstimation {
     public static Consumer<AprilTagCamera.EstimatedRobotPose> stream(Consumer<AprilTagCamera.EstimatedRobotPose> original) {
         // Whether to estimate the next AprilTag update from each camera.
         Map<String, Boolean> estimate =
-            Stream.of(VisionConstants.ELEVATOR_SWERVE, VisionConstants.CLIMBER_SWERVE)
-                  .collect(Collectors.toMap(VisionConstants.CameraConfiguration::name, $ -> false));
+            Stream.of(VisionConstants.CLIMBER_SWERVE_NAME, VisionConstants.ELEVATOR_SWERVE_NAME)
+                  .collect(Collectors.toMap(s -> s, $ -> false));
 
         // Initialize all of our inputs on SmartDashboard
         SmartDashboard.putData(

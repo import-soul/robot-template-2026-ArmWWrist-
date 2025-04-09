@@ -103,8 +103,6 @@ public class AutonomousConstants {
     private static List<Translation2d> BLUE_REEF_APPROACH_POLES, BLUE_REEF_SCORE_POLES;
     public static List<Translation2d> RED_REEF_CENTER_POSITIONS, BLUE_REEF_CENTER_POSITIONS;
 
-    public static Integer[] RED_REEF_APRILTAGS = new Integer[]{ 6, 7, 8, 9, 10, 11 }, BLUE_REEF_APRILTAGS = new Integer[]{ 17, 18, 19, 20, 21, 22 };
-
     static {
         computeCoralStationWaypoints();
         computePolePositions();

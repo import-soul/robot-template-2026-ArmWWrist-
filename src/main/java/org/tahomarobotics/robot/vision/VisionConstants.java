@@ -35,7 +35,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import org.photonvision.simulation.SimCameraProperties;
 import org.tahomarobotics.robot.chassis.ChassisConstants;
-import org.tahomarobotics.robot.util.identity.Identity;
 
 /** Constants for the {@link Vision} subsystem. */
 public class VisionConstants {
@@ -51,52 +50,8 @@ public class VisionConstants {
 
     // Cameras
 
-    public static CameraConfiguration CLIMBER_SWERVE;
-    public static CameraConfiguration ELEVATOR_SWERVE;
-
-    // Set default camera positions
-    static {
-        switch (Identity.robotID) {
-            case BEARRACUDA -> {
-                CLIMBER_SWERVE = new CameraConfiguration(
-                    "Climber Swerve",
-                    new Transform3d(
-                        new Translation3d(Units.inchesToMeters(-10.890), Units.inchesToMeters(-6.365), Units.inchesToMeters(8.216)),
-                        new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-20.375), Units.degreesToRadians(-179.460))
-                    ),
-                    StandardDeviationScaling.DEFAULT
-                );
-
-                ELEVATOR_SWERVE = new CameraConfiguration(
-                    "Elevator Swerve",
-                    new Transform3d(
-                        new Translation3d(Units.inchesToMeters(-10.165), Units.inchesToMeters(9.313), Units.inchesToMeters(8.497)),
-                        new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-21.378), Units.degreesToRadians(-179.444))
-                    ),
-                    StandardDeviationScaling.DEFAULT
-                );
-            }
-            default -> {
-                ELEVATOR_SWERVE = new CameraConfiguration(
-                    "Elevator Swerve",
-                    new Transform3d(
-                        new Translation3d(Units.inchesToMeters(-9.29776753219244), Units.inchesToMeters(-11.504534732516685), Units.inchesToMeters(8.21623605229078)),
-                        new Rotation3d(Units.degreesToRadians(2.2248359720093287), Units.degreesToRadians(-9.982763906842235), Units.degreesToRadians(167.19557559491642))
-                    ),
-                    StandardDeviationScaling.DEFAULT
-                );
-
-                CLIMBER_SWERVE = new CameraConfiguration(
-                    "Climber Swerve",
-                    new Transform3d(
-                        new Translation3d(Units.inchesToMeters(-9.602577558722281), Units.inchesToMeters(12.751841850668), Units.inchesToMeters(7.88746670060428)),
-                        new Rotation3d(Units.degreesToRadians(-0.4567216903080351), Units.degreesToRadians(-10.880936479962182), Units.degreesToRadians(-166.46753608815487))
-                    ),
-                    StandardDeviationScaling.DEFAULT
-                );
-            }
-        }
-    }
+    public final static String ELEVATOR_SWERVE_NAME = "Elevator Swerve";
+    public final static String CLIMBER_SWERVE_NAME = "Climber Swerve";
 
     public final static CameraConfiguration LIME_LIGHT = new CameraConfiguration(
         "LimeLight",

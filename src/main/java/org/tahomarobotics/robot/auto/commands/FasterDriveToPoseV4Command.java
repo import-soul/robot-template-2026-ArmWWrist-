@@ -116,11 +116,7 @@ public class FasterDriveToPoseV4Command extends Command {
         }
 
         chassis.setAutoAligning(true);
-        if (RobotConfiguration.FEATURE_REEF_ISOLATION) {
-            Vision.getInstance().isolate(AutonomousConstants.getAlliance() == DriverStation.Alliance.Blue ? BLUE_REEF_APRILTAGS : RED_REEF_APRILTAGS);
-        } else {
-            Vision.getInstance().isolate(isolationTarget);
-        }
+        Vision.getInstance().isolate(isolationTarget);
 
         org.littletonrobotics.junction.Logger.recordOutput("Autonomous/Drive To Pose/Waypoints", waypoints.toArray(Pose2d[]::new));
 

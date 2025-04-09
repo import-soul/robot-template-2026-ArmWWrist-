@@ -31,9 +31,7 @@ import org.photonvision.simulation.VisionSystemSim;
 import org.tahomarobotics.robot.auto.AutonomousConstants;
 import org.tahomarobotics.robot.chassis.Chassis;
 import org.tahomarobotics.robot.util.SubsystemIF;
-import org.tahomarobotics.robot.util.persistent.CalibrationData;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -48,8 +46,6 @@ import java.util.stream.Stream;
 public class Vision extends SubsystemIF implements AutoCloseable {
     private static final Vision INSTANCE = new Vision();
 
-    private static CalibrationData<double[][]> cameraConfigurations;
-
     // State
 
     private final Consumer<AprilTagCamera.EstimatedRobotPose> estimationCallback =
@@ -59,14 +55,14 @@ public class Vision extends SubsystemIF implements AutoCloseable {
 
     public final AprilTagCamera elevatorSwerve =
         new AprilTagCamera(
-            VisionConstants.ELEVATOR_SWERVE, VisionConstants.simOV9782Properties,
-            estimationCallback
+            VisionConstants.ELEVATOR_SWERVE_NAME, VisionConstants.StandardDeviationScaling.DEFAULT,
+            VisionConstants.simOV9782Properties, estimationCallback
         );
 
     public final AprilTagCamera climberSwerve =
         new AprilTagCamera(
-            VisionConstants.CLIMBER_SWERVE, VisionConstants.simOV9782Properties,
-            estimationCallback
+            VisionConstants.CLIMBER_SWERVE_NAME, VisionConstants.StandardDeviationScaling.DEFAULT,
+            VisionConstants.simOV9782Properties, estimationCallback
         );
 
     private final Map<String, AprilTagCamera> aprilTagCameras =
@@ -148,10 +144,10 @@ public class Vision extends SubsystemIF implements AutoCloseable {
         return Optional.of(fieldToCoral);
     }
 
-    public void isolate(Integer... tags) {
-        org.tinylog.Logger.info("Isolating on tags: " + Arrays.toString(tags));
+    public void isolate(int tag) {
+        org.tinylog.Logger.info("Isolating on tag: " + tag);
 
-        aprilTagCameras.values().forEach(c -> c.isolate(tags));
+        aprilTagCameras.values().forEach(c -> c.isolate(tag));
     }
 
     public void globalize() {

@@ -51,8 +51,6 @@ import org.tahomarobotics.robot.util.persistent.CalibrationData;
 import org.tinylog.Logger;
 import org.tinylog.TaggedLogger;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -103,6 +101,9 @@ public class AprilTagCamera implements AutoCloseable {
 
     // Camera
 
+    @AutoLogOutput(key = "Vision/{name}/Broken")
+    private final boolean broken;
+
     private final String name;
     protected CameraConfiguration configuration;
 
@@ -133,7 +134,8 @@ public class AprilTagCamera implements AutoCloseable {
     @AutoLogOutput(key = "Vision/{name}/AprilTag IDs")
     private int[] aprilTagIDs = new int[0];
 
-    private HashSet<Integer> isolationTargets = new HashSet<>();
+    @AutoLogOutput(key = "Vision/{name}/Isolated Tag")
+    private int isolationTarget = -1;
 
     @AutoLogOutput(key = "Vision/{name}/Failed Updates")
     private int failedUpdates = 0;
@@ -155,25 +157,33 @@ public class AprilTagCamera implements AutoCloseable {
     /**
      * Creates a new {@link AprilTagCamera} with the supplied configuration and simulation properties.
      *
-     * @param configuration Configuration about the camera (name, transform, etc.)
      * @param simProperties Simulation properties representing the real camera as closely as possible
      * @param callback      A callback to consume processed estimated robot poses
      */
     public AprilTagCamera(
-        CameraConfiguration configuration,
+        String name,
+        VisionConstants.StandardDeviationScaling scaling,
         SimCameraProperties simProperties,
         Consumer<EstimatedRobotPose> callback
     ) {
-        this.name = configuration.name();
-        this.configuration = configuration;
+        this.name = name;
+        this.logger = Logger.tag(name);
+
+        // Attempt to load calibration
+        mountPositionCalibration = new CalibrationData<>(name + "Calibration", new double[6]);
+        broken = !mountPositionCalibration.isCalibrated();
+
+        if (broken) {
+            logger.error("BROKEN");
+        }
+
+        loadConfiguration(name, scaling);
 
         this.estimationCallback = callback;
         this.isolationPoseEstimator = new PhotonPoseEstimator(
             FIELD_LAYOUT, PhotonPoseEstimator.PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, configuration.transform());
 
         this.notifier = new Notifier(this::processUnreadVisionUpdates);
-
-        logger = Logger.tag(configuration.name());
 
         camera = new PhotonCamera(configuration.name());
         sim = new PhotonCameraSim(camera, simProperties);
@@ -192,10 +202,6 @@ public class AprilTagCamera implements AutoCloseable {
             distortionCoefficients = simProperties.getDistCoeffs(); // ^
         }
 
-        mountPositionCalibration = new CalibrationData<>(name + "Calibration", configuration.getTransformArray());
-
-        loadConfiguration();
-
         notifier.startPeriodic(Robot.defaultPeriodSecs);
     }
 
@@ -205,6 +211,8 @@ public class AprilTagCamera implements AutoCloseable {
      * Processes all unread valid vision updates into estimated robot poses.
      */
     public void processUnreadVisionUpdates() {
+        if (broken) { return; }
+
         camera.getAllUnreadResults()
               .forEach(result -> {
                   var est = processUpdate(result);
@@ -227,31 +235,34 @@ public class AprilTagCamera implements AutoCloseable {
         double now = Timer.getFPGATimestamp();
 
         // Pre-filtering
-
         List<PhotonTrackedTarget> targets = (result.getTargets().stream())
             .filter(t -> t.fiducialId <= FIELD_LAYOUT.getTags().size())
             .filter(t -> t.getPoseAmbiguity() <= AMBIGUITY_THRESHOLD)
             .toList();
 
         if (targets.isEmpty()) {
+            publishTags(chassisPose, targets);
+
             return Optional.empty();
         }
 
-        if (!isolationTargets.isEmpty()) {
+        if (isolationTarget > 0) {
             isolationPoseEstimator.addHeadingData(
                 result.getTimestampSeconds(), chassisPose.map(p -> p.getRotation().toRotation2d()).orElseGet(Chassis.getInstance()::getHeading));
 
-            List<PhotonTrackedTarget> targets_ = targets.stream().filter(t -> isolationTargets.contains(t.fiducialId)).toList();
+            Optional<PhotonTrackedTarget> target_ = targets.stream().filter(t -> t.fiducialId == isolationTarget).findAny();
+            if (target_.isEmpty()) { return Optional.empty(); }
+            PhotonTrackedTarget target = target_.get();
 
-            var est = isolationPoseEstimator.update(new PhotonPipelineResult(result.metadata, targets_, Optional.empty()));
+            var est = isolationPoseEstimator.update(new PhotonPipelineResult(result.metadata, List.of(target), Optional.empty()));
             Optional<EstimatedRobotPose> estimatedRobotPose = est.map(e -> new EstimatedRobotPose(
                 name, result.getTimestampSeconds(),
                 EstimatedRobotPose.Type.ISOLATED_SINGLE_TAG,
                 e.estimatedPose.toPose2d(),
                 BASE_ISOLATED_SINGLE_TAG_STD_DEV,
-                targets_
+                List.of(target)
             ));
-            publishTags(chassisPose, targets_);
+            publishTags(chassisPose, List.of(target));
 
             if (estimatedRobotPose.isPresent()) {
                 singleTagPose = estimatedRobotPose.get().pose();
@@ -447,13 +458,12 @@ public class AprilTagCamera implements AutoCloseable {
 
     // Setters
 
-    void isolate(Integer... tags) {
-        isolationTargets.clear();
-        isolationTargets.addAll(Arrays.stream(tags).filter(i -> i > 0).toList());
+    void isolate(int tag) {
+        isolationTarget = tag;
     }
 
     void globalize() {
-        isolationTargets.clear();
+        isolationTarget = -1;
     }
 
     // Configuration
@@ -475,11 +485,15 @@ public class AprilTagCamera implements AutoCloseable {
 
     public void setCongfiguration(CameraConfiguration configuration) {
         Logger.info("New configuration for " + configuration.name() + " with transform " + configuration.transform());
+
+        if (isolationPoseEstimator != null) {
+            isolationPoseEstimator.setRobotToCameraTransform(configuration.transform());
+        }
         this.configuration = configuration;
     }
 
-    public void loadConfiguration() {
-        CameraConfiguration newConfig = CameraConfiguration.arrayToCameraConfiguration(mountPositionCalibration.get(), configuration.name(), configuration.stdDevScaling());
+    public void loadConfiguration(String name, StandardDeviationScaling scaling) {
+        CameraConfiguration newConfig = CameraConfiguration.arrayToCameraConfiguration(mountPositionCalibration.get(), name, scaling);
         setCongfiguration(newConfig);
     }
 

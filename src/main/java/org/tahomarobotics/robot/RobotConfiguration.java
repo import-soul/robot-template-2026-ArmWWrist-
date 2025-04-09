@@ -36,7 +36,6 @@ public class RobotConfiguration {
         return isClimberEnabled.get();
     }
 
-    public static final boolean FEATURE_REEF_ISOLATION = false;
     public static final boolean FEATURE_CORAL_DETECTION = true;
     public static final boolean FEATURE_ALGAE_END_EFFECTOR = true;
     public static final boolean FEATURE_LIMIT_SWITCH = true;
