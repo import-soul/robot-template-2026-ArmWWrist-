@@ -23,7 +23,6 @@
 package org.tahomarobotics.robot.auto;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -104,13 +103,9 @@ public class Autonomous extends SubsystemIF {
 
     public Command assembleFivePiece(boolean isLeft, DriverStation.Alliance alliance) {
         LinkedHashMap<Character, DoubleSupplier> scorePositions = new LinkedHashMap<>();
-        scorePositions.put(
-            'J', () -> (alliance == DriverStation.Alliance.Blue) ?
-                (isLeft ? Units.inchesToMeters(3) : Units.inchesToMeters(0)) :
-                (isLeft ? Units.inchesToMeters(2) : 0)
-        );
-        scorePositions.put('K', () -> alliance == DriverStation.Alliance.Red && isLeft ? 0 : Units.inchesToMeters(2));
-        scorePositions.put('L', () -> alliance == DriverStation.Alliance.Red && isLeft ? 0 : Units.inchesToMeters(2));
+        scorePositions.put('J', () -> 0);
+        scorePositions.put('K', () -> 0);
+        scorePositions.put('L', () -> 0);
         scorePositions.put('A', () -> 0);
         return new AssembledAuto(isLeft, scorePositions, alliance, "Five-Piece");
     }
@@ -118,13 +113,9 @@ public class Autonomous extends SubsystemIF {
     public Command assembleCompatibleFivePiece(boolean isLeft, DriverStation.Alliance alliance) {
         LinkedHashMap<Character, DoubleSupplier> scorePositions = new LinkedHashMap<>();
         scorePositions.put('I', () -> 0);
-        scorePositions.put(
-            'J', () -> (alliance == DriverStation.Alliance.Blue) ?
-                (isLeft ? Units.inchesToMeters(3) : Units.inchesToMeters(2)) :
-                (isLeft ? Units.inchesToMeters(2) : 0)
-        );
-        scorePositions.put('K', () -> alliance == DriverStation.Alliance.Red && isLeft ? 0 : Units.inchesToMeters(2));
-        scorePositions.put('L', () -> alliance == DriverStation.Alliance.Red && isLeft ? 0 : Units.inchesToMeters(2));
+        scorePositions.put('J', () -> 0);
+        scorePositions.put('K', () -> 0);
+        scorePositions.put('L', () -> 0);
         return new FastAssembledAuto(isLeft, scorePositions, alliance, "Compatible Five-Piece");
     }
 

@@ -25,9 +25,7 @@ package org.tahomarobotics.robot.windmill.commands;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import org.tahomarobotics.robot.util.motion.MotionProfile;
 import org.tahomarobotics.robot.util.motion.MotionState;
 import org.tahomarobotics.robot.windmill.Dynamics;
 import org.tahomarobotics.robot.windmill.Windmill;
@@ -36,8 +34,6 @@ import org.tahomarobotics.robot.windmill.WindmillState;
 import org.tahomarobotics.robot.windmill.WindmillTrajectory;
 import org.tinylog.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class WindmillMoveCommand extends Command {
@@ -81,8 +77,8 @@ public class WindmillMoveCommand extends Command {
             broken = true;
             return;
         }
-        windmill.setIsRunningTrajectory(true);
 
+        windmill.setIsRunningTrajectory(true);
         windmill.setTargetState(fromTo.getSecond());
 
         isProfileDone = false;
@@ -133,7 +129,9 @@ public class WindmillMoveCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        windmill.setState(fromTo.getSecond().state);
+        if (!broken) {
+            windmill.setState(fromTo.getSecond().state);
+        }
         windmill.setIsRunningTrajectory(false);
         Logger.info("Ran trajectory: '{}'", trajectory.name);
     }

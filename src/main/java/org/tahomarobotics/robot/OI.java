@@ -124,13 +124,7 @@ public class OI extends SubsystemIF {
         WindmillConstants.TrajectoryState trajectoryState = windmill.getTargetTrajectoryState();
         boolean isL4 = trajectoryState == WindmillConstants.TrajectoryState.L4 || windmill.willMoveToL4OnAutoAlign();
 
-        double fudge = isRed ? Units.inchesToMeters(1) : 0;
-
-        if (isRed && key == 'F' && !isL4) {
-            fudge = Units.inchesToMeters(4);
-        }
-
-        return fudge;
+        return 0;
     }
 
     // -- Bindings --
