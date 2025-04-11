@@ -32,7 +32,7 @@ public class GrabberConstants {
     public static final double CORAL_COLLECT_VELOCITY = RobotConfiguration.FEATURE_ALGAE_END_EFFECTOR ? -48 : -20;
     public static final double ALGAE_COLLECT_VELOCITY = -10;
     public static final double SCORING_VELOCITY = 50;
-    public static final double L1_SCORING_VELOCITY = SCORING_VELOCITY * 0.175;
+    public static final double L1_SCORING_VELOCITY = SCORING_VELOCITY * Math.E / 18;
     public static final double CORAL_HOLD_VOLTAGE = RobotConfiguration.FEATURE_ALGAE_END_EFFECTOR ? 0 : -0.25;
     public static final double ALGAE_HOLD_VOLTAGE = -1.35;
 
