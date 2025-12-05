@@ -20,12 +20,19 @@
  * THE SOFTWARE.
  */
 
-package org.tahomarobotics.robot;
+package org.tahomarobotics.robot.Arm;
 
-import edu.wpi.first.math.geometry.Translation2d;
+public class Arm {
+    //name triggers up here
+    private final ArmSubsystem armSubsystem;
 
-public final class RobotMap {
-    public final static int PIGEON = 0; // Internal IMU. Will not be used in Extra Programming Projects (Robot)
-    public final static int ARM_MOTOR = 1;
-    public final static int WRIST_MOTOR = 2;
+    //define triggers in the constructor
+    public Arm() {
+        this(new ArmSubsystem());
+    }
+
+    public Arm(ArmSubsystem armSubsystem) {
+        this.armSubsystem = armSubsystem;
+    }
+    //create command getters (with commands class) and trigger getters
 }

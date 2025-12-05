@@ -20,12 +20,10 @@
  * THE SOFTWARE.
  */
 
-package org.tahomarobotics.robot;
+package org.tahomarobotics.robot.Arm;
 
-import edu.wpi.first.math.geometry.Translation2d;
+public class ArmConstants {
 
-public final class RobotMap {
-    public final static int PIGEON = 0; // Internal IMU. Will not be used in Extra Programming Projects (Robot)
-    public final static int ARM_MOTOR = 1;
-    public final static int WRIST_MOTOR = 2;
+
+    //motor configs, mostly just apply reverse/hold
 }
