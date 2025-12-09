@@ -66,6 +66,7 @@ public class OI {
     // -- Bindings --
 
     public void configureControllerBindings() {
+        // decide when commands should be run with triggers
     }
 
     public void configureLessImportantControllerBindings() {

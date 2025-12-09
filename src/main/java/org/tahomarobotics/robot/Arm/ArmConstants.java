@@ -22,8 +22,28 @@
 
 package org.tahomarobotics.robot.Arm;
 
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 public class ArmConstants {
+    //constants, of course
+    //public final static ___
+
+    //motor configs, mostly just apply reverse/hold copied from robot-with-sim-2025
+    private static final MotorOutputConfigs ARM_OUTPUT_CONFIG = new MotorOutputConfigs()
+        .withInverted(InvertedValue.Clockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
+
+    private static final MotorOutputConfigs WRIST_OUTPUT_CONFIG = new MotorOutputConfigs()
+        .withInverted(InvertedValue.Clockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
 
 
-    //motor configs, mostly just apply reverse/hold
+    public static final TalonFXConfiguration ARM_MOTOR_CONFIG = new TalonFXConfiguration()
+        .withMotorOutput(ARM_OUTPUT_CONFIG);
+
+    public static final TalonFXConfiguration WRIST_MOTOR_CONFIG = new TalonFXConfiguration()
+        .withMotorOutput(WRIST_OUTPUT_CONFIG);
 }

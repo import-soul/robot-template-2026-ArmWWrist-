@@ -25,13 +25,23 @@ package org.tahomarobotics.robot.Arm;
 import org.tahomarobotics.robot.util.AbstractSubsystem;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import org.tahomarobotics.robot.RobotMap;
+import org.tahomarobotics.robot.util.RobustConfigurator;
+
+import static org.tahomarobotics.robot.Arm.ArmConstants.*;
+
+
 public class ArmSubsystem extends AbstractSubsystem {
     //add status signals and motor objects
-    static TalonFX armMotor;
-    static TalonFX wristMotor;
+    final TalonFX armMotor;
+    final TalonFX wristMotor;
 
     ArmSubsystem() {
+        armMotor = new TalonFX(RobotMap.ARM_MOTOR);
+        wristMotor = new TalonFX(RobotMap.WRIST_MOTOR);
 
+        RobustConfigurator.tryConfigureTalonFX("ArmDeployMotor", armMotor, ARM_MOTOR_CONFIG);
+        RobustConfigurator.tryConfigureTalonFX("ArmWristMotor", wristMotor, WRIST_MOTOR_CONFIG);
     }
     //add basic methods to control the arm and to get values
     @Override
