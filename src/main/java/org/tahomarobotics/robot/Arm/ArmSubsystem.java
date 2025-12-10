@@ -25,8 +25,10 @@ package org.tahomarobotics.robot.Arm;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.tahomarobotics.robot.util.AbstractSubsystem;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -44,8 +46,32 @@ public class ArmSubsystem extends AbstractSubsystem {
 
     private final StatusSignal<Angle> deployAngle;
     private final StatusSignal<Angle> wristAngle;
+    private final StatusSignal<AngularVelocity> deployVelocity;
+    private final StatusSignal<AngularVelocity> wristVelocity;
 
     private final VelocityVoltage velocityControl = new VelocityVoltage(RotationsPerSecond.of(0));
+    private final Voltage voltControl = new Voltage() {
+        @Override
+        public Voltage copy() {
+            return null;
+        }
+
+        @Override
+        public VoltageUnit unit() {
+            return null;
+        }
+
+        @Override
+        public double magnitude() {
+            return 0;
+        }
+
+        @Override
+        public double baseUnitMagnitude() {
+            return 0;
+        }
+    };
+
 
     ArmSubsystem() {
         armMotor = new TalonFX(RobotMap.ARM_MOTOR);
@@ -56,6 +82,8 @@ public class ArmSubsystem extends AbstractSubsystem {
 
         deployAngle = armMotor.getPosition();
         wristAngle = wristMotor.getPosition();
+        deployVelocity = armMotor.getVelocity();
+        wristVelocity = armMotor.getVelocity();
     }
 
     //add basic methods to control the arm and to get values
@@ -65,6 +93,14 @@ public class ArmSubsystem extends AbstractSubsystem {
 
     Angle getWristAngle() {
         return wristAngle.getValue();
+    }
+
+    AngularVelocity getDeployVelocity() {
+        return deployVelocity.getValue();
+    }
+
+    AngularVelocity getWristVelocity() {
+        return wristVelocity.getValue();
     }
 
     void setDeployVelocity(double rotPerSec) {
@@ -83,13 +119,21 @@ public class ArmSubsystem extends AbstractSubsystem {
         wristMotor.setControl(velocityControl.withVelocity(angularVelocity));
     }
 
+    public void zeroWrist() {
+        wristMotor.setPosition(0);
+    }
+
+    public void zeroArm() {
+        armMotor.setPosition(0);
+    }
+
 
 
 
 
     @Override
     public void subsystemPeriodic() {
-        StatusSignal.refreshAll(deployAngle, wristAngle);
+        StatusSignal.refreshAll(deployAngle, wristAngle, deployVelocity, wristVelocity);
 
     }
 

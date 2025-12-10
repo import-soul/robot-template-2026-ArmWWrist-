@@ -34,7 +34,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID.*;
+
 import org.tinylog.Logger;
 
 import java.util.List;
@@ -67,6 +70,7 @@ public class OI {
 
     public void configureControllerBindings() {
         // decide when commands should be run with triggers
+        controller.axisGreaterThan((int) controller.getRightY(), 0.5);
     }
 
     public void configureLessImportantControllerBindings() {
