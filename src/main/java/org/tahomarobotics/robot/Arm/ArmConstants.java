@@ -30,6 +30,14 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 public class ArmConstants {
     //constants, of course
     //public final static ___
+    public final static double ARM_SPEED = 0.2; //rotations per second
+    public final static double WRIST_SPEED = 0.4; //rotations per second
+    public final static double ARM_HIGH_BOUND = 180;  //degrees
+    public final static double ARM_LOW_BOUND = 0;  //degrees
+    public final static double WRIST_HIGH_BOUND = 300;  //degrees
+    public final static double WRIST_LOW_BOUND = 0;  //degrees
+    public final static double BOUND_TRIGGER_TOLERANCE = 0.5; //degrees
+
 
     //motor configs, mostly just apply reverse/hold copied from robot-with-sim-2025
     private static final MotorOutputConfigs ARM_OUTPUT_CONFIG = new MotorOutputConfigs()

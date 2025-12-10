@@ -22,19 +22,30 @@
 
 package org.tahomarobotics.robot.Arm;
 
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj2.command.Command;
 import org.tahomarobotics.robot.util.AbstractSubsystem;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import org.tahomarobotics.robot.RobotMap;
 import org.tahomarobotics.robot.util.RobustConfigurator;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static org.tahomarobotics.robot.Arm.ArmConstants.*;
 
 
 public class ArmSubsystem extends AbstractSubsystem {
-    //add status signals and motor objects
-    final TalonFX armMotor;
-    final TalonFX wristMotor;
+    //add StatusSignals and motor objects
+    private final TalonFX armMotor;
+    private final TalonFX wristMotor;
+
+    private final StatusSignal<Angle> deployAngle;
+    private final StatusSignal<Angle> wristAngle;
+
+    private final VelocityVoltage velocityControl = new VelocityVoltage(RotationsPerSecond.of(0));
 
     ArmSubsystem() {
         armMotor = new TalonFX(RobotMap.ARM_MOTOR);
@@ -42,10 +53,44 @@ public class ArmSubsystem extends AbstractSubsystem {
 
         RobustConfigurator.tryConfigureTalonFX("ArmDeployMotor", armMotor, ARM_MOTOR_CONFIG);
         RobustConfigurator.tryConfigureTalonFX("ArmWristMotor", wristMotor, WRIST_MOTOR_CONFIG);
+
+        deployAngle = armMotor.getPosition();
+        wristAngle = wristMotor.getPosition();
     }
+
     //add basic methods to control the arm and to get values
+    Angle getDeployAngle() {
+        return deployAngle.getValue();
+    }
+
+    Angle getWristAngle() {
+        return wristAngle.getValue();
+    }
+
+    void setDeployVelocity(double rotPerSec) {
+        armMotor.setControl(velocityControl.withVelocity(RotationsPerSecond.of(rotPerSec)));
+    }
+
+    void setDeployVelocity(AngularVelocity angularVelocity) {
+        armMotor.setControl(velocityControl.withVelocity(angularVelocity));
+    }
+
+    void setWristVelocity(double rotPerSec) {
+        wristMotor.setControl(velocityControl.withVelocity(RotationsPerSecond.of(rotPerSec)));
+    }
+
+    void setWristVelocity(AngularVelocity angularVelocity) {
+        wristMotor.setControl(velocityControl.withVelocity(angularVelocity));
+    }
+
+
+
+
+
     @Override
     public void subsystemPeriodic() {
+        StatusSignal.refreshAll(deployAngle, wristAngle);
 
     }
+
 }

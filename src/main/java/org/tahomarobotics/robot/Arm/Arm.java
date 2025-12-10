@@ -22,8 +22,20 @@
 
 package org.tahomarobotics.robot.Arm;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static org.tahomarobotics.robot.Arm.ArmConstants.*;
+
 public class Arm {
     //name triggers up here
+    public Trigger armHighBound;
+    public Trigger armLowBound;
+    public Trigger wristHighBound;
+    public Trigger wristLowBound;
+
     private final ArmSubsystem armSubsystem;
 
     //define triggers in the constructor
@@ -33,6 +45,34 @@ public class Arm {
 
     public Arm(ArmSubsystem armSubsystem) {
         this.armSubsystem = armSubsystem;
+        armHighBound = new Trigger(() -> { return armSubsystem.getDeployAngle().gt(Degree.of(ARM_HIGH_BOUND-BOUND_TRIGGER_TOLERANCE));})
+            .debounce(0.1);
+        armLowBound = new Trigger(() -> { return armSubsystem.getDeployAngle().lt(Degree.of(ARM_LOW_BOUND+BOUND_TRIGGER_TOLERANCE));})
+            .debounce(0.1);
+
     }
     //create command getters (with commands class) and trigger getters
+
+    public Command stopDeploy() {
+        return armSubsystem.runOnce(() -> armSubsystem.setDeployVelocity(0))
+            .withName("Stop deploy");
+    }
+
+    public Command stopWrist() {
+        return armSubsystem.runOnce(()-> armSubsystem.setWristVelocity(0))
+            .withName("Stop wrist");
+    }
+    public Command deployMove(int direction){
+        return armSubsystem.runOnce(() -> armSubsystem.setDeployVelocity(ARM_SPEED * direction))
+            .withName("Deploy move");
+    }
+
+    public Command wristMove(int direction){
+        // direction should be -1 (counterclockwise) or +1 (clockwise)
+        return armSubsystem.runOnce(() -> armSubsystem.setWristVelocity(WRIST_SPEED * direction))
+            .withName("Wrist move");
+    }
+
+
+
 }
