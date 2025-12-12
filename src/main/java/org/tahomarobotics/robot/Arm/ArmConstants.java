@@ -32,14 +32,24 @@ public class ArmConstants {
     //public final static ___
     public final static double ARM_SPEED = 0.2; //rotations per second
     public final static double WRIST_SPEED = 0.4; //rotations per second
+    public final static double ARM_ZEROED_BOUND = 185;
     public final static double ARM_HIGH_BOUND = 180;  //degrees
     public final static double ARM_LOW_BOUND = 0;  //degrees
+    public final static double WRIST_ZEROED_BOUND = 305;
     public final static double WRIST_HIGH_BOUND = 300;  //degrees
     public final static double WRIST_LOW_BOUND = 0;  //degrees
     public final static double BOUND_TRIGGER_TOLERANCE = 0.5; //degrees
 
+    public enum RotationDirection {
+        CLOCKWISE(1),
+        COUNTERCLOCKWISE(-1);
+        public final int sign;
+        RotationDirection(int sign) {
+            this.sign = sign;
+        }
+    }
 
-    //motor configs, mostly just apply reverse/hold copied from robot-with-sim-2025
+    //motor configurations, mostly just apply reverse/hold copied from robot-with-sim-2025
     private static final MotorOutputConfigs ARM_OUTPUT_CONFIG = new MotorOutputConfigs()
         .withInverted(InvertedValue.Clockwise_Positive)
         .withNeutralMode(NeutralModeValue.Brake);
@@ -47,7 +57,6 @@ public class ArmConstants {
     private static final MotorOutputConfigs WRIST_OUTPUT_CONFIG = new MotorOutputConfigs()
         .withInverted(InvertedValue.Clockwise_Positive)
         .withNeutralMode(NeutralModeValue.Brake);
-
 
     public static final TalonFXConfiguration ARM_MOTOR_CONFIG = new TalonFXConfiguration()
         .withMotorOutput(ARM_OUTPUT_CONFIG);

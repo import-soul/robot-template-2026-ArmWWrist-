@@ -23,7 +23,6 @@
 package org.tahomarobotics.robot.Arm;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -32,33 +31,35 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static org.tahomarobotics.robot.Arm.ArmConstants.*;
 
 public class Arm {
-    //name triggers up here
-    public Trigger armHighBound;
-    public Trigger armLowBound;
-    public Trigger wristHighBound;
-    public Trigger wristLowBound;
+
+    public Trigger armAtHighBound;
+    public Trigger armAtLowBound;
+    public Trigger wristAtHighBound;
+    public Trigger wristAtLowBound;
     public Trigger deployIsStopped;
     public Trigger wristIsStopped;
 
     private final ArmSubsystem armSubsystem;
 
-    //define triggers in the constructor
     public Arm() {
         this(new ArmSubsystem());
     }
 
     public Arm(ArmSubsystem armSubsystem) {
         this.armSubsystem = armSubsystem;
-        armHighBound = new Trigger(() -> { return armSubsystem.getDeployAngle().gt(Degree.of(ARM_HIGH_BOUND - BOUND_TRIGGER_TOLERANCE)); })
+        armAtHighBound = new Trigger(() -> { return armSubsystem.getDeployAngle().gt(Degree.of(ARM_HIGH_BOUND - BOUND_TRIGGER_TOLERANCE)); })
             .debounce(0.1);
-        armLowBound = new Trigger(() -> { return armSubsystem.getDeployAngle().lt(Degree.of(ARM_LOW_BOUND + BOUND_TRIGGER_TOLERANCE)); })
+        armAtLowBound = new Trigger(() -> { return armSubsystem.getDeployAngle().lt(Degree.of(ARM_LOW_BOUND + BOUND_TRIGGER_TOLERANCE)); })
             .debounce(0.1);
-        wristHighBound = new Trigger(() -> { return armSubsystem.getWristAngle().gt(Degree.of(WRIST_HIGH_BOUND - BOUND_TRIGGER_TOLERANCE)); })
+        wristAtHighBound = new Trigger(() -> { return armSubsystem.getWristAngle().gt(Degree.of(WRIST_HIGH_BOUND - BOUND_TRIGGER_TOLERANCE)); })
             .debounce(0.1);
-        wristLowBound = new Trigger(() -> { return armSubsystem.getWristAngle().lt(Degree.of(WRIST_LOW_BOUND + BOUND_TRIGGER_TOLERANCE)); })
+        wristAtLowBound = new Trigger(() -> { return armSubsystem.getWristAngle().lt(Degree.of(WRIST_LOW_BOUND + BOUND_TRIGGER_TOLERANCE)); })
             .debounce(0.1);
         wristIsStopped = new Trigger(
             () -> armSubsystem.getWristVelocity().lt(RotationsPerSecond.of(0.01)))
+            .debounce(0.1);
+        deployIsStopped = new Trigger(
+            () -> armSubsystem.getDeployVelocity().lt(RotationsPerSecond.of(0.01)))
             .debounce(0.1);
     }
     //create command getters (with commands class) and trigger getters
@@ -73,45 +74,50 @@ public class Arm {
                            .withName("Stop wrist");
     }
 
-    public Command deployMove(int direction) {
-        return armSubsystem.runOnce(() -> armSubsystem.setDeployVelocity(ARM_SPEED * direction))
+    public Command deployMove(RotationDirection direction) {
+        return armSubsystem.runOnce(() -> armSubsystem.setDeployVelocity(ARM_SPEED * direction.sign))
                            .withName("Deploy move");
     }
 
-    public Command wristMove(int direction) {
+    public Command wristMove(RotationDirection direction) {
         // direction should be -1 (counterclockwise) or +1 (clockwise)
-        return armSubsystem.runOnce(() -> armSubsystem.setWristVelocity(WRIST_SPEED * direction))
+        return armSubsystem.runOnce(() -> armSubsystem.setWristVelocity(WRIST_SPEED * direction.sign))
                            .withName("Wrist move");
     }
 
-    // Wrist Zeroing Command
+   // Wrist Zeroing Command
+
     private Command zeroWrist() {
         return new FunctionalCommand(
-            () -> armSubsystem.setWristVoltage(),
+            // onInit
             () -> {},
-            // onEnd: stop and set zero
+            // onExecute: drive wrist slowly until it stops
+            () -> armSubsystem.setWristVoltage(1.0),
+            // onEnd: stop motor and zero encoder
             interrupted -> {
+                armSubsystem.stopWrist();
                 armSubsystem.zeroWrist();
             },
-            // isFinished: stop when wrist is not moving
-            () -> armSubsystem.isWristNotMoving(),
-
+            wristIsStopped,
             armSubsystem
+            // isFinished: when wrist velocity is basically zero
         ).withName("ArmSubsystem::zeroWrist");
     }
 
     // Arm Zeroing Command
     private Command zeroArm() {
         return new FunctionalCommand(
-            () -> armSubsystem.setArmVoltage(),
+            // onInit
             () -> {},
-            // onEnd: stop and set zero
+            // onExecute: drive arm slowly until it stops
+            () -> armSubsystem.setDeployVoltage(1.0),
+            // onEnd: stops motor and zero encoder
             interrupted -> {
-                armSubsystem.zeroWrist();
+                armSubsystem.stopArm();
+                armSubsystem.zeroArm();
             },
-            // isFinished: stop when arm is not moving
-            () -> armSubsystem.isArmNotMoving(),
-
+            // isFinished: when arm velocity is basically zero
+            deployIsStopped,
             armSubsystem
         ).withName("ArmSubsystem::zeroArm");
     }
