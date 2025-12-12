@@ -90,9 +90,9 @@ public class Arm {
     private Command zeroWrist() {
         return new FunctionalCommand(
             // onInit
-            () -> {},
-            // onExecute: drive wrist slowly until it stops
             () -> armSubsystem.setWristVoltage(1.0),
+            // onExecute: drive wrist slowly until it stops
+            () -> {},
             // onEnd: stop motor and zero encoder
             interrupted -> {
                 armSubsystem.stopWrist();
@@ -108,9 +108,9 @@ public class Arm {
     private Command zeroArm() {
         return new FunctionalCommand(
             // onInit
-            () -> {},
-            // onExecute: drive arm slowly until it stops
             () -> armSubsystem.setDeployVoltage(1.0),
+            // onExecute: drive arm slowly until it stops
+            () -> {},
             // onEnd: stops motor and zero encoder
             interrupted -> {
                 armSubsystem.stopArm();
