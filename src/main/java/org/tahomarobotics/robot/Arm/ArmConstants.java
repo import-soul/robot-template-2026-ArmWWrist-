@@ -26,19 +26,22 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.Angle;
+
+import static edu.wpi.first.units.Units.Degrees;
 
 public class ArmConstants {
     //constants, of course
     //public final static ___
     public final static double ARM_SPEED = 0.2; //rotations per second
     public final static double WRIST_SPEED = 0.4; //rotations per second
-    public final static double ARM_ZEROED_BOUND = 185;
-    public final static double ARM_HIGH_BOUND = 180;  //degrees
-    public final static double ARM_LOW_BOUND = 0;  //degrees
-    public final static double WRIST_ZEROED_BOUND = 305;
-    public final static double WRIST_HIGH_BOUND = 300;  //degrees
-    public final static double WRIST_LOW_BOUND = 0;  //degrees
-    public final static double BOUND_TRIGGER_TOLERANCE = 0.5; //degrees
+    public final static Angle ARM_ZEROED_BOUND = Degrees.of(185);
+    public final static Angle ARM_HIGH_BOUND = Degrees.of(180);
+    public final static Angle ARM_LOW_BOUND = Degrees.of(0);
+    public final static Angle WRIST_ZEROED_BOUND = Degrees.of(305);
+    public final static Angle WRIST_HIGH_BOUND = Degrees.of(300);
+    public final static Angle WRIST_LOW_BOUND = Degrees.of(0);
+    public final static Angle BOUND_TRIGGER_TOLERANCE = Degrees.of(0.5);
 
     public enum RotationDirection {
         CLOCKWISE(1),

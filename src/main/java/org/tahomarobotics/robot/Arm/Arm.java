@@ -47,13 +47,13 @@ public class Arm {
 
     public Arm(ArmSubsystem armSubsystem) {
         this.armSubsystem = armSubsystem;
-        armAtHighBound = new Trigger(() -> { return armSubsystem.getDeployAngle().gt(Degree.of(ARM_HIGH_BOUND - BOUND_TRIGGER_TOLERANCE)); })
+        armAtHighBound = new Trigger(() -> { return armSubsystem.getDeployAngle().gt(ARM_HIGH_BOUND.minus(BOUND_TRIGGER_TOLERANCE)); })
             .debounce(0.1);
-        armAtLowBound = new Trigger(() -> { return armSubsystem.getDeployAngle().lt(Degree.of(ARM_LOW_BOUND + BOUND_TRIGGER_TOLERANCE)); })
+        armAtLowBound = new Trigger(() -> { return armSubsystem.getDeployAngle().lt(ARM_LOW_BOUND.plus(BOUND_TRIGGER_TOLERANCE)); })
             .debounce(0.1);
-        wristAtHighBound = new Trigger(() -> { return armSubsystem.getWristAngle().gt(Degree.of(WRIST_HIGH_BOUND - BOUND_TRIGGER_TOLERANCE)); })
+        wristAtHighBound = new Trigger(() -> { return armSubsystem.getWristAngle().gt(WRIST_HIGH_BOUND.minus(BOUND_TRIGGER_TOLERANCE)); })
             .debounce(0.1);
-        wristAtLowBound = new Trigger(() -> { return armSubsystem.getWristAngle().lt(Degree.of(WRIST_LOW_BOUND + BOUND_TRIGGER_TOLERANCE)); })
+        wristAtLowBound = new Trigger(() -> { return armSubsystem.getWristAngle().lt(WRIST_LOW_BOUND.plus(BOUND_TRIGGER_TOLERANCE)); })
             .debounce(0.1);
         wristIsStopped = new Trigger(
             () -> armSubsystem.getWristVelocity().lt(RotationsPerSecond.of(0.01)))
@@ -61,6 +61,7 @@ public class Arm {
         deployIsStopped = new Trigger(
             () -> armSubsystem.getDeployVelocity().lt(RotationsPerSecond.of(0.01)))
             .debounce(0.1);
+        org.tinylog.Logger.info("test");
     }
     //create command getters (with commands class) and trigger getters
 
@@ -81,13 +82,14 @@ public class Arm {
 
     public Command wristMove(RotationDirection direction) {
         // direction should be -1 (counterclockwise) or +1 (clockwise)
-        return armSubsystem.runOnce(() -> armSubsystem.setWristVelocity(WRIST_SPEED * direction.sign))
+        return armSubsystem.runOnce(() -> {armSubsystem.setWristVelocity(WRIST_SPEED * direction.sign);
+                                            org.tinylog.Logger.info("wristMoved");})
                            .withName("Wrist move");
     }
 
    // Wrist Zeroing Command
 
-    private Command zeroWrist() {
+    public Command zeroWrist() {
         return new FunctionalCommand(
             // onInit
             () -> armSubsystem.setWristVoltage(1.0),
@@ -105,7 +107,7 @@ public class Arm {
     }
 
     // Arm Zeroing Command
-    private Command zeroArm() {
+    public Command zeroArm() {
         return new FunctionalCommand(
             // onInit
             () -> armSubsystem.setDeployVoltage(1.0),

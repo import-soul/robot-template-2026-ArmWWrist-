@@ -105,6 +105,7 @@ public class ArmSubsystem extends AbstractSubsystem {
 
     void setWristVelocity(double rotPerSec) {
         wristMotor.setControl(velocityControl.withVelocity(RotationsPerSecond.of(rotPerSec)));
+        org.tinylog.Logger.info("velocitySet");
     }
 
     void setWristVelocity(AngularVelocity angularVelocity) {
@@ -143,6 +144,7 @@ public class ArmSubsystem extends AbstractSubsystem {
 
         Logger.recordOutput("Arm/DeployAngle",getDeployAngle());
         Logger.recordOutput("Arm/WristAngle",getWristAngle());
-        //Logger.recordOutput("Controller/RightTriggerPressed", OI.controller);
+        Logger.recordOutput("Arm/ArmDeployType",armMotor.getControlMode().getValue());
+        Logger.recordOutput("Arm/WristDeployType",wristMotor.getControlMode().getValue());
     }
 }

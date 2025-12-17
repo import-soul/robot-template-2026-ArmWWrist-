@@ -25,9 +25,12 @@ package org.tahomarobotics.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.littletonrobotics.junction.Logger;
 import org.tahomarobotics.robot.Arm.Arm;
+
+import java.util.function.Supplier;
 
 import static org.tahomarobotics.robot.Arm.ArmConstants.RotationDirection.*;
 
@@ -44,9 +47,10 @@ public class OI {
     private static final double DEADBAND = 0.09;
     private static final double TRIGGER_DEADBAND = 0.05;
 
-    //MAKE PRIVATE AFTER TESTING!!!
-    public final CommandXboxController controller = new CommandXboxController(0);
+
+    private final CommandXboxController controller = new CommandXboxController(0);
     private final CommandXboxController lessImportantController = new CommandXboxController(1);
+
 
     public OI(RobotContainer robotContainer) {
         this.arm = robotContainer.arm;
@@ -58,21 +62,37 @@ public class OI {
         setDefaultCommands();
     }
 
+
+
+
+
+
+
+
     // -- Bindings --
 
     public void configureControllerBindings() {
-        // decide when commands should be run with triggers
-        //arm moves when joystick is up, and will stop when the arm is at its limit or the joystick isn't up
-        controller.axisGreaterThan(XboxController.Axis.kRightY.value, 0.2).onTrue(arm.deployMove(CLOCKWISE))
-                  .and(arm.armAtHighBound.negate()).onFalse(arm.stopDeploy());
-        //arm moves when joystick is down, and will stop when the arm is at its limit or the joystick isn't down
-        controller.axisLessThan(XboxController.Axis.kRightY.value, -0.2).onTrue(arm.deployMove(COUNTERCLOCKWISE))
-                  .and(arm.armAtLowBound.negate()).onFalse(arm.stopDeploy());
-        // when the right trigger is pressed, the wrist moves clockwise, and will stop if the arm reaches its high bound or the trigger stops being pressed.
-        controller.rightTrigger().onTrue(arm.wristMove(CLOCKWISE)).and(arm.wristAtHighBound.negate()).onFalse(arm.stopWrist());
-        // when the left trigger is pressed, the wrist moves counterclockwise, and will stop if the arm reaches its low bound or the trigger stops being pressed.
-        controller.leftTrigger().onTrue(arm.wristMove(COUNTERCLOCKWISE)).and(arm.wristAtLowBound.negate()).onFalse(arm.stopWrist());
+//         decide when commands should be run with triggers
+//        arm moves when joystick is up, and will stop when the arm is at its limit or the joystick isn't up
+//        controller.axisGreaterThan(XboxController.Axis.kRightY.value, 0.2).onTrue(arm.deployMove(CLOCKWISE))
+//                  .and(arm.armAtHighBound.negate()).onFalse(arm.stopDeploy());
+//        arm moves when joystick is down, and will stop when the arm is at its limit or the joystick isn't down
+//        controller.axisLessThan(XboxController.Axis.kRightY.value, -0.2).onTrue(arm.deployMove(COUNTERCLOCKWISE))
+//                  .and(arm.armAtLowBound.negate()).onFalse(arm.stopDeploy());
+//         when the right trigger is pressed, the wrist moves clockwise, and will stop if the arm reaches its high bound or the trigger stops being pressed.
+//        controller.rightTrigger().onTrue(arm.wristMove(CLOCKWISE)).and(arm.wristAtHighBound.negate()).onFalse(arm.stopWrist());
+//         when the left trigger is pressed, the wrist moves counterclockwise, and will stop if the arm reaches its low bound or the trigger stops being pressed.
+//        controller.leftTrigger().onTrue(arm.wristMove(COUNTERCLOCKWISE)).and(arm.wristAtLowBound.negate()).onFalse(arm.stopWrist());
+        controller.leftTrigger().onTrue(arm.wristMove(COUNTERCLOCKWISE));
+        controller.leftTrigger().onFalse(arm.wristMove(COUNTERCLOCKWISE)).or(arm.wristAtLowBound).onTrue(arm.stopWrist());
+        controller.a().onTrue(arm.zeroArm());
+        controller.b().onTrue(arm.zeroWrist());
     }
+
+
+
+
+
 
     public void configureLessImportantControllerBindings() {
     }
