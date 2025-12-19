@@ -29,6 +29,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import org.tahomarobotics.robot.OI;
+import org.tahomarobotics.robot.RobotContainer;
 import org.tahomarobotics.robot.util.AbstractSubsystem;
 import com.ctre.phoenix6.hardware.TalonFX;
 import org.tahomarobotics.robot.RobotMap;
@@ -105,7 +106,6 @@ public class ArmSubsystem extends AbstractSubsystem {
 
     void setWristVelocity(double rotPerSec) {
         wristMotor.setControl(velocityControl.withVelocity(RotationsPerSecond.of(rotPerSec)));
-        org.tinylog.Logger.info("velocitySet");
     }
 
     void setWristVelocity(AngularVelocity angularVelocity) {

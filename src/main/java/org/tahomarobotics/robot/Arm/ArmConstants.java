@@ -27,14 +27,16 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public class ArmConstants {
     //constants, of course
     //public final static ___
-    public final static double ARM_SPEED = 0.2; //rotations per second
-    public final static double WRIST_SPEED = 0.4; //rotations per second
+    public final static AngularVelocity ARM_SPEED = RotationsPerSecond.of(0.2);
+    public final static AngularVelocity WRIST_SPEED = RotationsPerSecond.of(0.4);
     public final static Angle ARM_ZEROED_BOUND = Degrees.of(185);
     public final static Angle ARM_HIGH_BOUND = Degrees.of(180);
     public final static Angle ARM_LOW_BOUND = Degrees.of(0);

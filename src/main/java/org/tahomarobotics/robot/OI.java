@@ -72,19 +72,15 @@ public class OI {
     // -- Bindings --
 
     public void configureControllerBindings() {
-//         decide when commands should be run with triggers
-//        arm moves when joystick is up, and will stop when the arm is at its limit or the joystick isn't up
-//        controller.axisGreaterThan(XboxController.Axis.kRightY.value, 0.2).onTrue(arm.deployMove(CLOCKWISE))
-//                  .and(arm.armAtHighBound.negate()).onFalse(arm.stopDeploy());
-//        arm moves when joystick is down, and will stop when the arm is at its limit or the joystick isn't down
-//        controller.axisLessThan(XboxController.Axis.kRightY.value, -0.2).onTrue(arm.deployMove(COUNTERCLOCKWISE))
-//                  .and(arm.armAtLowBound.negate()).onFalse(arm.stopDeploy());
-//         when the right trigger is pressed, the wrist moves clockwise, and will stop if the arm reaches its high bound or the trigger stops being pressed.
-//        controller.rightTrigger().onTrue(arm.wristMove(CLOCKWISE)).and(arm.wristAtHighBound.negate()).onFalse(arm.stopWrist());
-//         when the left trigger is pressed, the wrist moves counterclockwise, and will stop if the arm reaches its low bound or the trigger stops being pressed.
-//        controller.leftTrigger().onTrue(arm.wristMove(COUNTERCLOCKWISE)).and(arm.wristAtLowBound.negate()).onFalse(arm.stopWrist());
-        controller.leftTrigger().onTrue(arm.wristMove(COUNTERCLOCKWISE));
-        controller.leftTrigger().onFalse(arm.wristMove(COUNTERCLOCKWISE)).or(arm.wristAtLowBound).onTrue(arm.stopWrist());
+
+//      arm will only move when it's not at its high bound and the trigger is up, and will stop if either of those things change
+        controller.axisGreaterThan(XboxController.Axis.kRightY.value, 0.2).negate().or(arm.armAtHighBound).onTrue(arm.stopDeploy())
+                  .onFalse(arm.deployMove(CLOCKWISE));
+//      arm will only move when it's not at its low bound and the trigger is down, and will stop if either of those things change
+        controller.axisLessThan(XboxController.Axis.kRightY.value, -0.2).negate().or(arm.armAtLowBound).onTrue(arm.stopDeploy())
+                  .onFalse(arm.deployMove(COUNTERCLOCKWISE));
+        controller.leftTrigger().negate().or(arm.wristAtLowBound).onTrue(arm.stopWrist()).onFalse(arm.wristMove(COUNTERCLOCKWISE));
+        controller.rightTrigger().negate().or(arm.wristAtHighBound).onTrue(arm.stopWrist()).onFalse(arm.wristMove(CLOCKWISE));
         controller.a().onTrue(arm.zeroArm());
         controller.b().onTrue(arm.zeroWrist());
     }

@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static org.tahomarobotics.robot.Arm.ArmConstants.*;
 
@@ -61,29 +60,26 @@ public class Arm {
         deployIsStopped = new Trigger(
             () -> armSubsystem.getDeployVelocity().lt(RotationsPerSecond.of(0.01)))
             .debounce(0.1);
-        org.tinylog.Logger.info("test");
     }
     //create command getters (with commands class) and trigger getters
 
     public Command stopDeploy() {
-        return armSubsystem.runOnce(() -> armSubsystem.setDeployVelocity(0))
+        return armSubsystem.runOnce(armSubsystem::stopArm)
                            .withName("Stop deploy");
     }
 
     public Command stopWrist() {
-        return armSubsystem.runOnce(() -> armSubsystem.setWristVelocity(0))
+        return armSubsystem.runOnce(armSubsystem::stopWrist)
                            .withName("Stop wrist");
     }
 
     public Command deployMove(RotationDirection direction) {
-        return armSubsystem.runOnce(() -> armSubsystem.setDeployVelocity(ARM_SPEED * direction.sign))
+        return armSubsystem.runOnce(() -> armSubsystem.setDeployVelocity(ARM_SPEED.times(direction.sign)))
                            .withName("Deploy move");
     }
 
     public Command wristMove(RotationDirection direction) {
-        // direction should be -1 (counterclockwise) or +1 (clockwise)
-        return armSubsystem.runOnce(() -> {armSubsystem.setWristVelocity(WRIST_SPEED * direction.sign);
-                                            org.tinylog.Logger.info("wristMoved");})
+        return armSubsystem.runOnce(() -> {armSubsystem.setWristVelocity(WRIST_SPEED.times(direction.sign));})
                            .withName("Wrist move");
     }
 
